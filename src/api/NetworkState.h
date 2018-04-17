@@ -45,7 +45,8 @@ public:
     void stop();
 
     char pool[256];
-    std::array<uint64_t, 10> topDiff { { } };
+    //std::array<uint64_t, 10> topDiff { { } };
+    std::array<uint64_t, 10> topDiff;
     uint32_t diff;
     uint64_t accepted;
     uint64_t failures;

@@ -36,17 +36,21 @@ FailoverStrategy::FailoverStrategy(const std::vector<Url*> &urls, int retryPause
     m_index(0),
     m_listener(listener)
 {
-    for (const Url *url : urls) {
-        add(url);
-    }
+    //for (const Url *url : urls) {
+	for(auto i = urls.begin(); i != urls.end(); i++) {
+		const Url *url = *i;
+		add(url);
+	}
 }
 
 
 FailoverStrategy::~FailoverStrategy()
 {
-    for (Client *client : m_pools) {
-        client->deleteLater();
-    }
+    //for (Client *client : m_pools) {
+	for(auto i = m_pools.begin(); i != m_pools.end(); i++) {
+		Client *client = *i;
+		client->deleteLater();
+	}
 }
 
 
@@ -91,9 +95,10 @@ void FailoverStrategy::stop()
 
 void FailoverStrategy::tick(uint64_t now)
 {
-    for (Client *client : m_pools) {
-        client->tick(now);
-    }
+	for(auto i = m_pools.begin(); i != m_pools.end(); i++) {
+		Client *client = *i;
+		client->tick(now);
+	}
 }
 
 

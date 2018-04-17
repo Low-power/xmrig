@@ -43,6 +43,7 @@ public:
         DEBUG
     };
 
+#if 0
     constexpr static const char* kCL_N      = "\x1B[0m";
     constexpr static const char* kCL_RED    = "\x1B[31m";
     constexpr static const char* kCL_YELLOW = "\x1B[33m";
@@ -53,6 +54,7 @@ public:
 #   else
     constexpr static const char* kCL_GRAY = "\x1B[90m";
 #   endif
+#endif
 
     static inline Log* i()                       { return m_self; }
     static inline void add(ILogBackend *backend) { i()->m_backends.push_back(backend); }

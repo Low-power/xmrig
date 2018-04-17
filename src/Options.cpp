@@ -598,9 +598,11 @@ Url *Options::parseUrl(const char *arg) const
 
 void Options::adjust()
 {
-    for (Url *url : m_pools) {
-        url->adjust(m_algo);
-    }
+    //for (Url *url : m_pools) {
+	for(auto i = m_pools.begin(); i != m_pools.end(); i++) {
+		Url *url = *i;
+		url->adjust(m_algo);
+	}
 }
 
 
@@ -617,7 +619,11 @@ void Options::parseConfig(const char *fileName)
 
     const rapidjson::Value &pools = doc["pools"];
     if (pools.IsArray()) {
-        for (const rapidjson::Value &value : pools.GetArray()) {
+        //for (const rapidjson::Value &value : pools.GetArray()) {
+        auto a = pools.GetArray();
+        for (auto i = a.Begin(); i != a.End(); i++) {
+            const rapidjson::Value &value = *i;
+
             if (!value.IsObject()) {
                 continue;
             }

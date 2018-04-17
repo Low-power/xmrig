@@ -28,7 +28,7 @@
 #include "api/ApiState.h"
 
 
-ApiState *Api::m_state = nullptr;
+ApiState *Api::m_state = NULL;
 uv_mutex_t Api::m_mutex;
 
 

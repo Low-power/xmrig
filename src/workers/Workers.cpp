@@ -176,9 +176,11 @@ void Workers::onResult(uv_async_t *handle)
     }
     uv_mutex_unlock(&m_mutex);
 
-    for (auto result : results) {
-        m_listener->onJobResult(result);
-    }
+    //for (auto result : results) {
+	for(auto i = results.begin(); i != results.end(); i++) {
+		JobResult result = *i;
+		m_listener->onJobResult(result);
+	}
 
     results.clear();
 }
@@ -186,13 +188,15 @@ void Workers::onResult(uv_async_t *handle)
 
 void Workers::onTick(uv_timer_t *handle)
 {
-    for (Handle *handle : m_workers) {
-        if (!handle->worker()) {
-            return;
-        }
+    //for (Handle *handle : m_workers) {
+	for(auto i = m_workers.begin(); i != m_workers.end(); i++) {
+		Handle *handle = *i;
+		if (!handle->worker()) {
+			return;
+		}
 
-        m_hashrate->add(handle->threadId(), handle->worker()->hashCount(), handle->worker()->timestamp());
-    }
+		m_hashrate->add(handle->threadId(), handle->worker()->hashCount(), handle->worker()->timestamp());
+	}
 
     if ((m_ticks++ & 0xF) == 0)  {
         m_hashrate->updateHighest();

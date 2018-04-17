@@ -73,7 +73,7 @@ void (* const extra_hashes[4])(const uint8_t *, size_t, uint8_t *) = {do_blake_h
 
 
 
-#if defined(__x86_64__) || defined(_M_AMD64)
+#if d(efined(__x86_64__) || defined(_M_AMD64) && defined __SIZEOF_INT128__ && __SIZEOF_INT128__ == 16
 #   define EXTRACT64(X) _mm_cvtsi128_si64(X)
 
 #   ifdef __GNUC__

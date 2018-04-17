@@ -28,7 +28,6 @@
 
 #include "api/Api.h"
 #include "App.h"
-#include "Console.h"
 #include "Cpu.h"
 #include "crypto/CryptoNight.h"
 #include "log/ConsoleLog.h"
@@ -147,41 +146,6 @@ int App::exec()
 
     release();
     return r;
-}
-
-
-void App::onConsoleCommand(char command)
-{
-    switch (command) {
-    case 'h':
-    case 'H':
-        Workers::printHashrate(true);
-        break;
-
-    case 'p':
-    case 'P':
-        if (Workers::isEnabled()) {
-            LOG_INFO(m_options->colors() ? "\x1B[01;33mpaused\x1B[0m, press \x1B[01;35mr\x1B[0m to resume" : "paused, press 'r' to resume");
-            Workers::setEnabled(false);
-        }
-        break;
-
-    case 'r':
-    case 'R':
-        if (!Workers::isEnabled()) {
-            LOG_INFO(m_options->colors() ? "\x1B[01;32mresumed" : "resumed");
-            Workers::setEnabled(true);
-        }
-        break;
-
-    case 3:
-        LOG_WARN("Ctrl+C received, exiting");
-        close();
-        break;
-
-    default:
-        break;
-    }
 }
 
 

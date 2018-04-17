@@ -196,6 +196,13 @@ int64_t Client::submit(const JobResult &result)
     return send(size);
 }
 
+void Client::onShutdown(uv_shutdown_t* req, int status) {
+	if (uv_is_closing(reinterpret_cast<uv_handle_t*>(req->handle)) == 0) {
+		uv_close(reinterpret_cast<uv_handle_t*>(req->handle), Client::onClose);
+	}
+
+	delete req;
+}
 
 bool Client::close()
 {
@@ -212,6 +219,7 @@ bool Client::close()
     }
 
     if (uv_is_writable(stream) == 1) {
+#if 0
         const int rc = uv_shutdown(new uv_shutdown_t, stream, [](uv_shutdown_t* req, int status) {
             if (uv_is_closing(reinterpret_cast<uv_handle_t*>(req->handle)) == 0) {
                 uv_close(reinterpret_cast<uv_handle_t*>(req->handle), Client::onClose);
@@ -219,6 +227,9 @@ bool Client::close()
 
             delete req;
         });
+#else
+	int rc = uv_shutdown(new uv_shutdown_t, stream, onShutdown);
+#endif
 
         assert(rc == 0);
 
@@ -514,7 +525,11 @@ void Client::parseExtensions(const rapidjson::Value &value)
         return;
     }
 
-    for (const rapidjson::Value &ext : value.GetArray()) {
+    //for (const rapidjson::Value &ext : value.GetArray()) {
+    auto a = value.GetArray();
+    for (auto i = a.Begin(); i != a.End(); i++) {
+        const rapidjson::Value &ext = *i;
+
         if (!ext.IsString()) {
             continue;
         }
@@ -648,6 +663,7 @@ void Client::setState(SocketState state)
     m_state = state;
 }
 
+void Client::onTimerEvent(uv_timer_t *handle) { getClient(handle->data)->ping(); }
 
 void Client::startTimeout()
 {
@@ -658,7 +674,8 @@ void Client::startTimeout()
         return;
     }
 
-    uv_timer_start(&m_keepAliveTimer, [](uv_timer_t *handle) { getClient(handle->data)->ping(); }, kKeepAliveTimeout, 0);
+    //uv_timer_start(&m_keepAliveTimer, [](uv_timer_t *handle) { getClient(handle->data)->ping(); }, kKeepAliveTimeout, 0);
+    uv_timer_start(&m_keepAliveTimer, onTimerEvent, kKeepAliveTimeout, 0);
 #   endif
 }
 

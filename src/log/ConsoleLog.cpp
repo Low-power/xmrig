@@ -77,6 +77,7 @@ void ConsoleLog::message(int level, const char* fmt, va_list args)
     localtime_r(&now, &stime);
 #   endif
 
+#if 0
     const char* color = nullptr;
     if (m_colors) {
         switch (level) {
@@ -101,6 +102,7 @@ void ConsoleLog::message(int level, const char* fmt, va_list args)
             break;
         }
     }
+#endif
 
     snprintf(m_fmt, sizeof(m_fmt) - 1, "[%d-%02d-%02d %02d:%02d:%02d]%s %s%s\n",
              stime.tm_year + 1900,
@@ -109,9 +111,9 @@ void ConsoleLog::message(int level, const char* fmt, va_list args)
              stime.tm_hour,
              stime.tm_min,
              stime.tm_sec,
-             m_colors ? color : "",
+             /*m_colors ? color : */"",
              fmt,
-             m_colors ? Log::kCL_N : ""
+             /*m_colors ? Log::kCL_N : */""
         );
 
     print(args);
@@ -120,7 +122,12 @@ void ConsoleLog::message(int level, const char* fmt, va_list args)
 
 void ConsoleLog::text(const char* fmt, va_list args)
 {
-    snprintf(m_fmt, sizeof(m_fmt) - 1, "%s%s\n", fmt, m_colors ? Log::kCL_N : "");
+    //snprintf(m_fmt, sizeof(m_fmt) - 1, "%s%s\n", fmt, m_colors ? Log::kCL_N : "");
+	size_t len = strlen(fmt);
+	if(len > sizeof m_fmt - 2) len = sizeof m_fmt - 2;
+	memcpy(m_fmt, fmt, len);
+	m_fmt[len] = '\n';
+	m_fmt[len + 1] = 0;
 
     print(args);
 }

@@ -27,12 +27,16 @@
 
 #include <stdint.h>
 
+#define DEFAULT_USER "x"
+#define DEFAULT_PASSWORD "x"
 
 class Url
 {
 public:
-    constexpr static const char *kDefaultPassword = "x";
-    constexpr static const char *kDefaultUser     = "x";
+#if 0
+    /*constexpr */static const char *kDefaultPassword = "x";
+    /*constexpr */static const char kDefaultUser[]     = "x";
+#endif
     constexpr static uint16_t kDefaultPort        = 3333;
 
     Url();
@@ -44,8 +48,8 @@ public:
     inline bool isNicehash() const           { return m_nicehash; }
     inline bool isValid() const              { return m_host && m_port > 0; }
     inline const char *host() const          { return m_host; }
-    inline const char *password() const      { return m_password ? m_password : kDefaultPassword; }
-    inline const char *user() const          { return m_user ? m_user : kDefaultUser; }
+    inline const char *password() const      { return m_password ? m_password : DEFAULT_PASSWORD; }
+    inline const char *user() const          { return m_user ? m_user : DEFAULT_USER; }
     inline int algo() const                  { return m_algo; }
     inline int variant() const               { return m_variant; }
     inline uint16_t port() const             { return m_port; }

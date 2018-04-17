@@ -102,6 +102,8 @@ private:
     static void onConnect(uv_connect_t *req, int status);
     static void onRead(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf);
     static void onResolved(uv_getaddrinfo_t *req, int status, struct addrinfo *res);
+    static void onShutdown(uv_shutdown_t* req, int status);
+    static void onTimerEvent(uv_timer_t *handle);
 
     static inline Client *getClient(void *data) { return static_cast<Client*>(data); }
 
