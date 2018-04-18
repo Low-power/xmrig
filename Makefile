@@ -67,8 +67,10 @@ SOURCES += \
 LIBS += -lpthread -lrt
 endif
 
-OBJECTS = $(SOURCES:%.cpp=%.o)
-OBJECTS += $(SOURCES:%.c=%.o)
+OBJECTS = $(addsuffix .o,$(basename $(SOURCES)))
 
 xmrig:	$(OBJECTS)
 	$(CXX) $(LDFLAGS) $^ -o $@ $(LIBS)
+
+clean:
+	rm -f $(OBJECTS)
