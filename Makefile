@@ -5,7 +5,7 @@ INCLUDE_PATHS += -Isrc/3rdparty/libcpuid -Isrc -Isrc/3rdparty
 CFLAGS += $(DEFINES) $(INCLUDE_PATHS) -Wall -O3
 CXXFLAGS += $(DEFINES) $(INCLUDE_PATHS) -D_GLIBCXX_USE_NANOSLEEP -D_GLIBCXX_USE_SCHED_YIELD -Wall -fno-exceptions -maes -std=gnu++0x -O3 -DNDEBUG -funroll-loops -fvariable-expansion-in-unroller -fmerge-all-constants -fbranch-target-load-optimize2
 #CXXFLAGS += -Dnullptr=__null -Dconstexpr=const "-Dalignas(b)=" -Doverride= -fpermissive
-CXXFLAGS += "-Dalignas(b)="
+CXXFLAGS += "-Dalignas(b)=__attribute__((__aligned__))"
 LIBS += -luv
 
 SOURCES = \
