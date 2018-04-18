@@ -4,7 +4,9 @@ DEFINES += -DHAVE_SYSLOG_H -DNDEBUG -DRAPIDJSON_SSE2 -DUNICODE -DXMRIG_NO_API -D
 INCLUDE_PATHS += -Isrc/3rdparty/libcpuid -Isrc -Isrc/3rdparty
 CFLAGS += $(DEFINES) $(INCLUDE_PATHS) -Wall -O3
 CXXFLAGS += $(DEFINES) $(INCLUDE_PATHS) -D_GLIBCXX_USE_NANOSLEEP -D_GLIBCXX_USE_SCHED_YIELD -Wall -fno-exceptions -maes -std=gnu++0x -O3 -DNDEBUG -funroll-loops -fvariable-expansion-in-unroller -fmerge-all-constants -fbranch-target-load-optimize2
-CXXFLAGS += -Dnullptr=__null -Dconstexpr=const "-Dalignas(b)=" -Doverride= -fpermissive
+#CXXFLAGS += -Dnullptr=__null -Dconstexpr=const "-Dalignas(b)=" -Doverride= -fpermissive
+CXXFLAGS += "-Dalignas(b)="
+LIBS += -luv
 
 SOURCES = \
     src/api/Api.cpp \
@@ -65,6 +67,24 @@ SOURCES += \
         src/Mem_unix.cpp \
         src/Platform_unix.cpp
 LIBS += -lpthread -lrt
+endif
+
+ifdef WITH_LIBCPUID
+    # src/3rdparty/libcpuid)
+SOURCES += src/Cpu.cpp
+LIBS += -lcpuid
+else
+DEFINES += -DXMRIG_NO_LIBCPUID
+ifeq ($(ARCH),arm)
+SOURCES += src/Cpu_arm.cpp
+else
+SOURCES += src/Cpu_stub.cpp
+endif
+endif
+
+ifdef HAVE_SYSLOG
+DEFINES += -DHAVE_SYSLOG_H
+SOURCES += src/log/SysLog.cpp
 endif
 
 OBJECTS = $(addsuffix .o,$(basename $(SOURCES)))

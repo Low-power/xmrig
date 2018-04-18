@@ -25,7 +25,7 @@
 #define __WORKER_H__
 
 
-#include <cstdatomic>
+#include <atomic>
 #include <stdint.h>
 
 

@@ -25,7 +25,7 @@
 #define __WORKERS_H__
 
 
-#include <cstdatomic>
+#include <atomic>
 #include <list>
 #include <uv.h>
 #include <vector>
