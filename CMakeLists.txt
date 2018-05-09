@@ -17,7 +17,6 @@ set(HEADERS
     src/App.h
     src/Cpu.h
     src/interfaces/IClientListener.h
-    src/interfaces/IConsoleListener.h
     src/interfaces/IJobResultListener.h
     src/interfaces/ILogBackend.h
     src/interfaces/IStrategy.h
