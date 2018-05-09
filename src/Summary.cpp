@@ -139,7 +139,7 @@ static void print_api()
 }
 #endif
 
-
+#if 0
 static void print_commands()
 {
     if (Options::i()->colors()) {
@@ -149,7 +149,7 @@ static void print_commands()
         Log::i()->text(" * COMMANDS:     'h' hashrate, 'p' pause, 'r' resume");
     }
 }
-
+#endif
 
 void Summary::print()
 {
@@ -163,7 +163,7 @@ void Summary::print()
     print_api();
 #   endif
 
-    print_commands();
+    //print_commands();
 }
 
 
