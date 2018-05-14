@@ -212,6 +212,7 @@ bool Client::close()
 
     setState(ClosingState);
 
+#if 0
     uv_stream_t *stream = reinterpret_cast<uv_stream_t*>(m_socket);
 
     if (uv_is_readable(stream) == 1) {
@@ -238,6 +239,9 @@ bool Client::close()
         }
     }
     else {
+#else
+    if (uv_is_closing(reinterpret_cast<uv_handle_t*>(m_socket)) == 0) {
+#endif
         uv_close(reinterpret_cast<uv_handle_t*>(m_socket), Client::onClose);
     }
 
