@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "algo": "cryptonight",  // cryptonight (default) or cryptonight-lite
     "av": 0,                // algorithm variation, 0 auto select
     "background": false,    // true to run the miner in the background
@@ -14,19 +15,56 @@
     "safe": false,          // true to safe adjust threads and av settings for current CPU
     "syslog": true,         // use system log for output messages, default don't use syslog
     "threads": null,        // number of miner threads
+=======
+    "algo": "cryptonight",
+    "api": {
+        "port": 0,
+        "access-token": null,
+        "id": null,
+        "worker-id": null,
+        "ipv6": false,
+        "restricted": true
+    },
+    "asm": true,
+    "autosave": true,
+    "av": 0,
+    "background": false,
+    "colors": true,
+    "cpu-affinity": null,
+    "cpu-priority": null,
+    "donate-level": 5,
+    "huge-pages": true,
+    "hw-aes": null,
+    "log-file": null,
+    "max-cpu-usage": 75,
+>>>>>>> 2b0b71b9f695466f8b434fbbbcbfecfb3f9ecd60
     "pools": [
         {
-            "url": "failover.xmrig.com:443", // URL of mining server
-            "user": "YOUR_WALLET",           // username for mining server
-            "pass": "x",                     // password for mining server
-            "keepalive": true,               // send keepalived for prevent timeout (need pool support)
-            "nicehash": false,               // enable nicehash/xmrig-proxy support
-            "variant": -1                    // algorithm PoW variant
+            "url": "donate.v2.xmrig.com:3333",
+            "user": "YOUR_WALLET_ADDRESS",
+            "pass": "x",
+            "rig-id": null,
+            "nicehash": false,
+            "keepalive": false,
+            "variant": -1,
+            "tls": false,
+            "tls-fingerprint": null
         }
     ],
+<<<<<<< HEAD
     "api": {
         "port": 0,                             // port for the miner API https://github.com/xmrig/xmrig/wiki/API
         "access-token": null,                  // access token for API
         "worker-id": null                      // custom worker-id for API
     }
 }
+=======
+    "print-time": 60,
+    "retries": 5,
+    "retry-pause": 5,
+    "safe": false,
+    "threads": null,
+    "user-agent": null,
+    "watch": false
+}
+>>>>>>> 2b0b71b9f695466f8b434fbbbcbfecfb3f9ecd60
