@@ -42,6 +42,8 @@ SOURCES = \
     src/workers/Workers.cpp \
     src/xmrig.cpp
 
+DEPENDS =
+
 SOURCES += \
     src/crypto/c_groestl.c \
     src/crypto/c_blake256.c \
@@ -85,7 +87,9 @@ endif	# WITH_ASM
 
 ifdef WITH_LIBCPUID
 SOURCES += src/core/cpu/AdvancedCpuInfo.cpp src/core/cpu/Cpu.cpp
-LIBS += -lcpuid
+#LIBS += -lcpuid
+DEPENDS += src/3rdparty/libcpuid/libcpuid.a
+LIBS += src/3rdparty/libcpuid/libcpuid.a
 else
 DEFINES += -DXMRIG_NO_LIBCPUID
 SOURCES += src/common/cpu/Cpu.cpp
@@ -103,8 +107,12 @@ endif
 
 OBJECTS = $(addsuffix .o,$(basename $(SOURCES)))
 
-xmrig:	$(OBJECTS)
-	$(CXX) $(LDFLAGS) $^ -o $@ $(LIBS)
+xmrig:	$(OBJECTS) $(DEPENDS)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBS)
 
 clean:
+	$(MAKE) -C src/3rdparty/libcpuid/ $@
 	rm -f $(OBJECTS)
+
+src/3rdparty/libcpuid/libcpuid.a:
+	$(MAKE) -C src/3rdparty/libcpuid/
