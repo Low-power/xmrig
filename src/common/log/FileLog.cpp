@@ -27,7 +27,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
+#include <unistd.h>
+#include <ctype.h>
 
 #include "common/log/FileLog.h"
 #include "common/log/Log.h"
@@ -38,9 +39,32 @@
 FileLog::FileLog(xmrig::Controller *controller, const char *fileName) :
     m_controller(controller)
 {
-    uv_fs_t req;
-    m_file = uv_fs_open(uv_default_loop(), &req, fileName, O_CREAT | O_APPEND | O_WRONLY, 0644, nullptr);
-    uv_fs_req_cleanup(&req);
+	if(*fileName == '-') {
+		int fd = -1;
+		const char *fdn = fileName + 1;
+		if(isdigit(*fdn)) {
+			char *endptr;
+			fd = strtol(fdn, &endptr, 10);
+			if(*endptr) fd = -1;
+		} else if(!*fdn) fd = STDOUT_FILENO;
+
+		if(fd == -1) {
+			m_file = -1;
+		} else {
+			fd = dup(fd);
+			if(fd == -1) {
+				perror("dup");
+				exit(-1);
+			}
+			m_file = fd;
+		}
+	} else m_file = -1;
+
+	if(m_file == -1) {
+		uv_fs_t req;
+		m_file = uv_fs_open(uv_default_loop(), &req, fileName, O_CREAT | O_APPEND | O_WRONLY, 0644, nullptr);
+		uv_fs_req_cleanup(&req);
+	}
 }
 
 
