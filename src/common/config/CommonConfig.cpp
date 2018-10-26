@@ -62,6 +62,10 @@
 #include "version.h"
 
 
+// Log system can't be used before configuration is loaded
+//#define LOG_CONFIG_ERROR(M) LOG_WARN("%s", (M))
+#define LOG_CONFIG_ERROR(M) fprintf(stderr, "Configuration warning: %s\n", (M))
+
 xmrig::CommonConfig::CommonConfig() :
     m_algorithm(CRYPTONIGHT, VARIANT_AUTO),
     m_adjusted(false),
@@ -452,12 +456,16 @@ bool xmrig::CommonConfig::parseInt(int key, int arg)
     case RetriesKey: /* --retries */
         if (arg > 0 && arg <= 1000) {
             m_retries = arg;
+        } else {
+            LOG_CONFIG_ERROR("retries argument out of range");
         }
         break;
 
     case RetryPauseKey: /* --retry-pause */
         if (arg > 0 && arg <= 3600) {
             m_retryPause = arg;
+        } else {
+            LOG_CONFIG_ERROR("retry-pause argument out of range");
         }
         break;
 
@@ -472,18 +480,24 @@ bool xmrig::CommonConfig::parseInt(int key, int arg)
     case DonateLevelKey: /* --donate-level */
         if (arg >= kMinimumDonateLevel && arg <= 99) {
             m_donateLevel = arg;
+        } else {
+            LOG_CONFIG_ERROR("donate-level argument out of range");
         }
         break;
 
     case ApiPort: /* --api-port */
         if (arg > 0 && arg <= 65536) {
             m_apiPort = arg;
+        } else {
+            LOG_CONFIG_ERROR("api-port argument out of range");
         }
         break;
 
     case PrintTimeKey: /* --print-time */
         if (arg >= 0 && arg <= 3600) {
             m_printTime = arg;
+        } else {
+            LOG_CONFIG_ERROR("print-time argument out of range");
         }
         break;
 

@@ -44,7 +44,7 @@
  * BTC: 1P7ujsXeX7GxQwHNnJsRMgAdNkFZmNVqJT
  */
 constexpr const int kDefaultDonateLevel = 2;
-constexpr const int kMinimumDonateLevel = 1;
+constexpr const int kMinimumDonateLevel = 0;
 
 
 #endif /* __DONATE_H__ */
