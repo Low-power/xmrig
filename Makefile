@@ -18,7 +18,6 @@ SOURCES = \
     src/common/config/ConfigWatcher.cpp \
     src/common/crypto/Algorithm.cpp \
     src/common/crypto/keccak.cpp \
-    src/common/log/BasicLog.cpp \
     src/common/log/ConsoleLog.cpp \
     src/common/log/FileLog.cpp \
     src/common/log/Log.cpp \

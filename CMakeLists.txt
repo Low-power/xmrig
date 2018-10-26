@@ -32,7 +32,6 @@ set(HEADERS
     src/common/interfaces/IStrategy.h
     src/common/interfaces/IStrategyListener.h
     src/common/interfaces/IWatcherListener.h
-    src/common/log/BasicLog.h
     src/common/log/ConsoleLog.h
     src/common/log/FileLog.h
     src/common/log/Log.h
@@ -96,7 +95,6 @@ set(SOURCES
     src/common/config/ConfigWatcher.cpp
     src/common/crypto/Algorithm.cpp
     src/common/crypto/keccak.cpp
-    src/common/log/BasicLog.cpp
     src/common/log/ConsoleLog.cpp
     src/common/log/FileLog.cpp
     src/common/log/Log.cpp
