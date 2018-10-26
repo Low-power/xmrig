@@ -28,7 +28,6 @@
 
 #include "api/Api.h"
 #include "App.h"
-#include "common/Console.h"
 #include "common/cpu/Cpu.h"
 #include "common/log/Log.h"
 #include "common/Platform.h"
@@ -52,7 +51,6 @@ App *App::m_self = nullptr;
 
 
 App::App(int argc, char **argv) :
-    m_console(nullptr),
     m_httpd(nullptr)
 {
     m_self = this;
@@ -60,10 +58,6 @@ App::App(int argc, char **argv) :
     m_controller = new xmrig::Controller();
     if (m_controller->init(argc, argv) != 0) {
         return;
-    }
-
-    if (!m_controller->config()->isBackground()) {
-        m_console = new Console(this);
     }
 
     uv_signal_init(uv_default_loop(), &m_sigHUP);
@@ -76,7 +70,6 @@ App::~App()
 {
     uv_tty_reset_mode();
 
-    delete m_console;
     delete m_controller;
 
 #   ifndef XMRIG_NO_HTTPD
@@ -132,41 +125,6 @@ int App::exec()
 
     release();
     return r;
-}
-
-
-void App::onConsoleCommand(char command)
-{
-    switch (command) {
-    case 'h':
-    case 'H':
-        Workers::printHashrate(true);
-        break;
-
-    case 'p':
-    case 'P':
-        if (Workers::isEnabled()) {
-            LOG_INFO(m_controller->config()->isColors() ? "\x1B[01;33mpaused\x1B[0m, press \x1B[01;35mr\x1B[0m to resume" : "paused, press 'r' to resume");
-            Workers::setEnabled(false);
-        }
-        break;
-
-    case 'r':
-    case 'R':
-        if (!Workers::isEnabled()) {
-            LOG_INFO(m_controller->config()->isColors() ? "\x1B[01;32mresumed" : "resumed");
-            Workers::setEnabled(true);
-        }
-        break;
-
-    case 3:
-        LOG_WARN("Ctrl+C received, exiting");
-        close();
-        break;
-
-    default:
-        break;
-    }
 }
 
 

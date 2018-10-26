@@ -20,14 +20,12 @@ set(HEADERS
     src/common/config/CommonConfig.h
     src/common/config/ConfigLoader.h
     src/common/config/ConfigWatcher.h
-    src/common/Console.h
     src/common/cpu/Cpu.h
     src/common/crypto/Algorithm.h
     src/common/crypto/keccak.h
     src/common/interfaces/IClientListener.h
     src/common/interfaces/IConfig.h
     src/common/interfaces/IConfigCreator.h
-    src/common/interfaces/IConsoleListener.h
     src/common/interfaces/IControllerListener.h
     src/common/interfaces/ICpuInfo.h
     src/common/interfaces/ILogBackend.h
@@ -96,7 +94,6 @@ set(SOURCES
     src/common/config/CommonConfig.cpp
     src/common/config/ConfigLoader.cpp
     src/common/config/ConfigWatcher.cpp
-    src/common/Console.cpp
     src/common/crypto/Algorithm.cpp
     src/common/crypto/keccak.cpp
     src/common/log/BasicLog.cpp

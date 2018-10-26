@@ -36,17 +36,18 @@
 class Log
 {
 public:
-    static inline Log* i()                       { if (!m_self) { defaultInit(); } return m_self; }
-    static inline void add(ILogBackend *backend) { i()->m_backends.push_back(backend); }
-    static inline void init()                    { if (!m_self) { new Log(); } }
-    static inline void release()                 { assert(m_self != nullptr); delete m_self; }
+	static inline Log* i()				{ if (!m_self) { defaultInit(); } return m_self; }
+	static inline void add(ILogBackend *backend)	{ i()->m_backends.push_back(backend); }
+	static inline void init()			{ if (!m_self) { new Log(); } }
+	static inline void release()			{ assert(m_self != nullptr); delete m_self; }
+	static inline bool hasBackend()			{ return !i()->m_backends.empty(); }
 
-    void message(ILogBackend::Level level, const char* fmt, ...);
-    void text(const char* fmt, ...);
+	void message(ILogBackend::Level level, const char* fmt, ...);
+	void text(const char* fmt, ...);
 
-    static const char *colorByLevel(ILogBackend::Level level, bool isColors = true);
-    static const char *endl(bool isColors = true);
-    static void defaultInit();
+	static const char *colorByLevel(ILogBackend::Level level, bool isColors = true);
+	static const char *endl(bool isColors = true);
+	static void defaultInit();
 
 private:
     inline Log() {

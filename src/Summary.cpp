@@ -133,6 +133,7 @@ static void print_threads(xmrig::Config *config)
 }
 
 
+/*
 static void print_commands(xmrig::Config *config)
 {
     if (config->isColors()) {
@@ -144,7 +145,7 @@ static void print_commands(xmrig::Config *config)
         Log::i()->text(" * COMMANDS     'h' hashrate, 'p' pause, 'r' resume");
     }
 }
-
+*/
 
 void Summary::print(xmrig::Controller *controller)
 {
@@ -154,8 +155,6 @@ void Summary::print(xmrig::Controller *controller)
     print_threads(controller->config());
     controller->config()->printPools();
     controller->config()->printAPI();
-
-    print_commands(controller->config());
 }
 
 

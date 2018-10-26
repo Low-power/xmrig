@@ -105,10 +105,6 @@ int xmrig::Controller::init(int argc, char **argv)
     Platform::init(config()->userAgent());
     Platform::setProcessPriority(d_ptr->config->priority());
 
-    if (!config()->isBackground()) {
-        Log::add(new ConsoleLog(this));
-    }
-
     if (config()->logFile()) {
         Log::add(new FileLog(this, config()->logFile()));
     }
@@ -118,6 +114,10 @@ int xmrig::Controller::init(int argc, char **argv)
         Log::add(new SysLog());
     }
 #   endif
+
+    if (!Log::hasBackend() && !config()->isBackground()) {
+        Log::add(new ConsoleLog(this));
+    }
 
     d_ptr->network = new Network(this);
     return 0;

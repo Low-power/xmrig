@@ -28,10 +28,6 @@
 #include <uv.h>
 
 
-#include "common/interfaces/IConsoleListener.h"
-
-
-class Console;
 class Httpd;
 class Network;
 class Options;
@@ -42,16 +38,13 @@ namespace xmrig {
 }
 
 
-class App : public IConsoleListener
+class App
 {
 public:
   App(int argc, char **argv);
   ~App();
 
   int exec();
-
-protected:
-  void onConsoleCommand(char command) override;
 
 private:
   void background();
@@ -62,7 +55,6 @@ private:
 
   static App *m_self;
 
-  Console *m_console;
   Httpd *m_httpd;
   uv_signal_t m_sigHUP;
   uv_signal_t m_sigINT;
