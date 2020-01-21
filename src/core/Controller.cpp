@@ -5,7 +5,8 @@
  * Copyright 2014-2016 Wolf9466    <https://github.com/OhGodAPet>
  * Copyright 2016      Jay D Dee   <jayddee246@gmail.com>
  * Copyright 2017-2018 XMR-Stak    <https://github.com/fireice-uk>, <https://github.com/psychocrypt>
- * Copyright 2016-2018 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright 2018-2019 SChernykh   <https://github.com/SChernykh>
+ * Copyright 2016-2019 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,127 +26,78 @@
 #include <assert.h>
 
 
-#include "common/config/ConfigLoader.h"
-#include "common/cpu/Cpu.h"
-#include "common/interfaces/IControllerListener.h"
-#include "common/log/ConsoleLog.h"
-#include "common/log/FileLog.h"
-#include "common/log/Log.h"
-#include "common/Platform.h"
-#include "core/Config.h"
+#include "backend/cpu/Cpu.h"
 #include "core/Controller.h"
+#include "core/Miner.h"
 #include "net/Network.h"
 
 
-#ifdef HAVE_SYSLOG_H
-#   include "common/log/SysLog.h"
-#endif
-
-
-class xmrig::ControllerPrivate
-{
-public:
-    inline ControllerPrivate() :
-        network(nullptr),
-        config(nullptr)
-    {}
-
-
-    inline ~ControllerPrivate()
-    {
-        delete network;
-        delete config;
-    }
-
-
-    Network *network;
-    std::vector<xmrig::IControllerListener *> listeners;
-    xmrig::Config *config;
-};
-
-
-xmrig::Controller::Controller()
-    : d_ptr(new ControllerPrivate())
+xmrig::Controller::Controller(Process *process) :
+    Base(process)
 {
 }
 
 
 xmrig::Controller::~Controller()
 {
-    ConfigLoader::release();
-
-    delete d_ptr;
+    delete m_network;
 }
 
 
 bool xmrig::Controller::isReady() const
 {
-    return d_ptr->config && d_ptr->network;
+    return Base::isReady() && m_network;
 }
 
 
-xmrig::Config *xmrig::Controller::config() const
-{
-    assert(d_ptr->config != nullptr);
-
-    return d_ptr->config;
-}
-
-
-int xmrig::Controller::init(int argc, char **argv)
+int xmrig::Controller::init()
 {
     Cpu::init();
 
-    d_ptr->config = xmrig::Config::load(argc, argv, this);
-    if (!d_ptr->config) {
-        return 1;
+    const int rc = Base::init();
+    if (rc != 0) {
+        return rc;
     }
 
-    Log::init();
-    Platform::init(config()->userAgent());
-    Platform::setProcessPriority(d_ptr->config->priority());
-
-    if (config()->logFile()) {
-        Log::add(new FileLog(this, config()->logFile()));
-    }
-
-#   ifdef HAVE_SYSLOG_H
-    if (config()->isSyslog()) {
-        Log::add(new SysLog());
-    }
-#   endif
-
-    if (!Log::hasBackend() && !config()->isBackground()) {
-        Log::add(new ConsoleLog(this));
-    }
-
-    d_ptr->network = new Network(this);
+    m_network = new Network(this);
     return 0;
 }
 
-
-Network *xmrig::Controller::network() const
+void xmrig::Controller::start()
 {
-    assert(d_ptr->network != nullptr);
+    Base::start();
 
-    return d_ptr->network;
+    m_miner = new Miner(this);
+
+    network()->connect();
 }
 
 
-void xmrig::Controller::addListener(IControllerListener *listener)
+void xmrig::Controller::stop()
 {
-    d_ptr->listeners.push_back(listener);
+    Base::stop();
+
+    delete m_network;
+    m_network = nullptr;
+
+    m_miner->stop();
+
+    delete m_miner;
+    m_miner = nullptr;
 }
 
 
-void xmrig::Controller::onNewConfig(IConfig *config)
+xmrig::Miner *xmrig::Controller::miner() const
 {
-    Config *previousConfig = d_ptr->config;
-    d_ptr->config = static_cast<Config*>(config);
+    assert(m_miner != nullptr);
 
-    for (xmrig::IControllerListener *listener : d_ptr->listeners) {
-        listener->onConfigChanged(d_ptr->config, previousConfig);
-    }
+    return m_miner;
+}
 
-    delete previousConfig;
+
+xmrig::Network *xmrig::Controller::network() const
+{
+    assert(m_network != nullptr);
+
+    return m_network;
 }

@@ -8,101 +8,149 @@ CFLAGS += $(DEFINES) $(INCLUDE_PATHS) -Wall -O3
 CXXFLAGS += $(DEFINES) $(INCLUDE_PATHS) -D_GLIBCXX_USE_NANOSLEEP -D_GLIBCXX_USE_SCHED_YIELD -Wall -fno-exceptions -maes -std=gnu++0x -O3 -DNDEBUG -funroll-loops -fvariable-expansion-in-unroller -fmerge-all-constants -fbranch-target-load-optimize2
 #CXXFLAGS += -Dnullptr=__null -Dconstexpr=const "-Dalignas(b)=" -Doverride= -fpermissive
 CXXFLAGS += "-Dalignas(b)=__attribute__((__aligned__))"
-LIBS += -luv
+LIBS += -l uv -l pthread
 
 SOURCES = \
-    src/api/NetworkState.cpp \
-    src/App.cpp \
-    src/common/config/CommonConfig.cpp \
-    src/common/config/ConfigLoader.cpp \
-    src/common/config/ConfigWatcher.cpp \
-    src/common/crypto/Algorithm.cpp \
-    src/common/crypto/keccak.cpp \
-    src/common/log/ConsoleLog.cpp \
-    src/common/log/FileLog.cpp \
-    src/common/log/Log.cpp \
-    src/common/net/Client.cpp \
-    src/common/net/Job.cpp \
-    src/common/net/Pool.cpp \
-    src/common/net/strategies/FailoverStrategy.cpp \
-    src/common/net/strategies/SinglePoolStrategy.cpp \
-    src/common/net/SubmitResult.cpp \
-    src/common/Platform.cpp \
-    src/core/Config.cpp \
-    src/core/Controller.cpp \
-    src/Mem.cpp \
-    src/net/Network.cpp \
-    src/net/strategies/DonateStrategy.cpp \
-    src/Summary.cpp \
-    src/workers/CpuThread.cpp \
-    src/workers/Handle.cpp \
-    src/workers/Hashrate.cpp \
-    src/workers/MultiWorker.cpp \
-    src/workers/Worker.cpp \
-    src/workers/Workers.cpp \
-    src/xmrig.cpp
+    src/base/io/json/Json.cpp \
+    src/base/io/json/JsonChain.cpp \
+    src/base/io/json/JsonRequest.cpp \
+    src/base/io/log/backends/ConsoleLog.cpp \
+    src/base/io/log/backends/FileLog.cpp \
+    src/base/io/log/Log.cpp \
+    src/base/io/Watcher.cpp \
+    src/base/kernel/Base.cpp \
+    src/base/kernel/config/BaseConfig.cpp \
+    src/base/kernel/config/BaseTransform.cpp \
+    src/base/kernel/Entry.cpp \
+    src/base/kernel/Platform.cpp \
+    src/base/kernel/Process.cpp \
+    src/base/kernel/Signals.cpp \
+    src/base/net/dns/Dns.cpp \
+    src/base/net/dns/DnsRecord.cpp \
+    src/base/net/http/Http.cpp \
+    src/base/net/stratum/BaseClient.cpp \
+    src/base/net/stratum/Client.cpp \
+    src/base/net/stratum/Job.cpp \
+    src/base/net/stratum/Pool.cpp \
+    src/base/net/stratum/Pools.cpp \
+    src/base/net/stratum/strategies/FailoverStrategy.cpp \
+    src/base/net/stratum/strategies/SinglePoolStrategy.cpp \
+    src/base/tools/Arguments.cpp \
+    src/base/tools/Buffer.cpp \
+    src/base/tools/String.cpp \
+    src/base/tools/Timer.cpp
 
-DEPENDS =
-
-SOURCES += \
-    src/crypto/c_groestl.c \
-    src/crypto/c_blake256.c \
-    src/crypto/c_jh.c \
-    src/crypto/c_skein.c
-
-ifdef WIN32
-SOURCES += \
-        res/app.rc \
-        src/App_win.cpp \
-        src/common/Platform_win.cpp \
-        src/Mem_win.cpp
-LIBS += -lws2_32 -lpsapi -liphlpapi -luserenv
-endif
 ifdef APPLE
 SOURCES += \
-        src/App_unix.cpp \
-        src/common/Platform_mac.cpp \
-        src/Mem_unix.cpp
+        src/base/io/json/Json_unix.cpp \
+        src/base/kernel/Platform_mac.cpp
 else
 SOURCES += \
-        src/App_unix.cpp \
-        src/common/Platform_unix.cpp \
-        src/Mem_unix.cpp
-LIBS += -lpthread -lrt
+        src/base/io/json/Json_unix.cpp \
+        src/base/kernel//Platform_unix.cpp
 endif
+
+DEFINES += -D HAVE_SYSLOG_H=1
+SOURCES += src/base/io/log/backends/SysLog.cpp
+
+ifdef WITH_HTTP
+SOURCES += \
+        src/3rdparty/http-parser/http_parser.c \
+        src/base/api/Api.cpp \
+        src/base/api/Httpd.cpp \
+        src/base/api/requests/ApiRequest.cpp \
+        src/base/api/requests/HttpApiRequest.cpp \
+        src/base/net/http/HttpApiResponse.cpp \
+        src/base/net/http/HttpClient.cpp \
+        src/base/net/http/HttpContext.cpp \
+        src/base/net/http/HttpResponse.cpp \
+        src/base/net/http/HttpServer.cpp \
+        src/base/net/stratum/DaemonClient.cpp \
+        src/base/net/tools/TcpServer.cpp
+
+DEFINES += -D XMRIG_FEATURE_HTTP=1 -D XMRIG_FEATURE_API=1
+endif
+
+SOURCES += \
+    src/backend/cpu/Cpu.cpp \
+    src/backend/cpu/CpuBackend.cpp \
+    src/backend/cpu/CpuConfig.cpp \
+    src/backend/cpu/CpuLaunchData.h \
+    src/backend/cpu/CpuThread.cpp \
+    src/backend/cpu/CpuThreads.cpp \
+    src/backend/cpu/CpuWorker.cpp
+
+SOURCES += \
+    src/backend/common/Hashrate.cpp \
+    src/backend/common/Threads.cpp \
+    src/backend/common/Worker.cpp \
+    src/backend/common/Workers.cpp
+
+SOURCES += \
+    src/App.cpp \
+    src/core/config/Config.cpp \
+    src/core/config/ConfigTransform.cpp \
+    src/core/Controller.cpp \
+    src/core/Miner.cpp \
+    src/net/JobResults.cpp \
+    src/net/Network.cpp \
+    src/net/NetworkState.cpp \
+    src/net/strategies/DonateStrategy.cpp \
+    src/Summary.cpp \
+    src/xmrig.cpp
+
+SOURCES += \
+    src/crypto/cn/c_blake256.c \
+    src/crypto/cn/c_groestl.c \
+    src/crypto/cn/c_jh.c \
+    src/crypto/cn/c_skein.c \
+    src/crypto/cn/CnCtx.cpp \
+    src/crypto/cn/CnHash.cpp \
+    src/crypto/common/Algorithm.cpp \
+    src/crypto/common/Coin.cpp \
+    src/crypto/common/keccak.cpp \
+    src/crypto/common/Nonce.cpp \
+    src/crypto/common/VirtualMemory.cpp
+
+SOURCES += \
+	src/App_unix.cpp \
+	src/crypto/common/VirtualMemory_unix.cpp
 
 # Need for FreeBSD
 #LIBS += -lkvm
 
 ifdef WITH_ASM
-SOURCES += src/crypto/Asm.cpp
+DEFINES += -D XMRIG_FEATURE_ASM=1
+SOURCES += \
+	src/crypto/common/Assembly.cpp \
+	src/crypto/cn/r/CryptonightR_gen.cpp
 ifdef WIN32
-SOURCES += src/crypto/asm/win64/cnv2_main_loop.S
+SOURCES += \
+	src/crypto/asm/win64/cnv2_main_loop.S
+	src/crypto/cn/asm/CryptonightR_template.S
 else
-SOURCES += src/crypto/asm/cnv2_main_loop.S
+SOURCES += \
+	src/crypto/asm/cnv2_main_loop.S \
+	src/crypto/cn/asm/CryptonightR_template.S
 endif
 else
-DEFINES += -DXMRIG_NO_ASM
+DEFINES += -D XMRIG_NO_ASM=1
 endif	# WITH_ASM
 
 ifdef WITH_LIBCPUID
-SOURCES += src/core/cpu/AdvancedCpuInfo.cpp src/core/cpu/Cpu.cpp
+DEFINES += -D XMRIG_FEATURE_LIBCPUID=1
+SOURCES += src/backend/cpu/platform/AdvancedCpuInfo.cpp
 #LIBS += -lcpuid
-DEPENDS += src/3rdparty/libcpuid/libcpuid.a
-LIBS += src/3rdparty/libcpuid/libcpuid.a
+#DEPENDS += src/3rdparty/libcpuid/libcpuid.a
+#LIBS += src/3rdparty/libcpuid/libcpuid.a
 else
-DEFINES += -DXMRIG_NO_LIBCPUID
-SOURCES += src/common/cpu/Cpu.cpp
+DEFINES += -D XMRIG_NO_LIBCPUID=1
+#SOURCES += src/common/cpu/Cpu.cpp
 ifeq ($(ARCH),arm)
-SOURCES += src/common/cpu/BasicCpuInfo_arm.cpp
+SOURCES += src/backend/cpu/platform/BasicCpuInfo_arm.cpp
 else
-SOURCES += src/common/cpu/BasicCpuInfo.cpp
+SOURCES += src/backend/cpu/platform/BasicCpuInfo.cpp
 endif
-endif
-
-ifdef HAVE_SYSLOG
-DEFINES += -DHAVE_SYSLOG_H
-SOURCES += src/common/log/SysLog.cpp
 endif
 
 OBJECTS = $(addsuffix .o,$(basename $(SOURCES)))

@@ -1,31 +1,56 @@
 # Algorithms
 
-XMRig uses a different way to specify algorithms, compared to other miners.
+Algorithm can be defined in 3 ways:
 
-Algorithm selection splitted to 2 parts:
+1. By pool, using algorithm negotiation, in this case no need specify algorithm on miner side.
+2. Per pool `coin` option, currently only usable value for this option is `monero`.
+3. Per pool `algo` option.
 
- * Global base algorithm per miner or proxy instance, `algo` option. Possible values: `cryptonight`, `cryptonight-lite`, `cryptonight-heavy`.
- * Algorithm variant specified separately for each pool, `variant` option.
- * [Full table for supported algorithm and variants.](https://github.com/xmrig/xmrig-proxy/blob/master/doc/STRATUM_EXT.md#14-algorithm-names-and-variants)
+Option `coin` useful for pools without algorithm negotiation support or daemon to allow automatically switch algorithm in next hard fork.
+
+## Algorithm names
+
+| Name | Memory | Version | Notes |
+|------|--------|---------|-------|
+| `rx/0` | 2 MB | 3.2.0+ | RandomX (Monero). |
+| `argon2/chukwa` | 512 KB | 3.1.0+ | Argon2id (Chukwa). |
+| `argon2/wrkz` | 256 KB | 3.1.0+ | Argon2id (WRKZ) |
+| `rx/wow` | 1 MB | 3.0.0+ | RandomWOW. |
+| `rx/loki` | 2 MB | 3.0.0+ | RandomXL. |
+| `cn/fast` | 2 MB | 3.0.0+ | CryptoNight variant 1 with half iterations. |
+| `cn/rwz` | 2 MB | 2.14.0+ | CryptoNight variant 2 with 3/4 iterations and reversed shuffle operation. |
+| `cn/zls` | 2 MB | 2.14.0+ | CryptoNight variant 2 with 3/4 iterations. |
+| `cn/double` | 2 MB | 2.14.0+ | CryptoNight variant 2 with double iterations. |
+| `cn/r` | 2 MB | 2.13.0+ | CryptoNightR (Monero's variant 4). |
+| `cn/wow` | 2 MB | 2.12.0+ | CryptoNightR (Wownero). |
+| `cn/gpu` | 2 MB | 2.11.0+ | CryptoNight-GPU. |
+| `cn-pico` | 256 KB | 2.10.0+ | CryptoNight-Pico. |
+| `cn/half` | 2 MB | 2.9.0+ | CryptoNight variant 2 with half iterations. |
+| `cn/2` | 2 MB | 2.8.0+ | CryptoNight variant 2. |
+| `cn/xao` | 2 MB | 2.6.4+ | CryptoNight variant 0 (modified). |
+| `cn/rto` | 2 MB | 2.6.4+ | CryptoNight variant 1 (modified). |
+| `cn-heavy/tube` | 4 MB | 2.6.4+ | CryptoNight-Heavy (modified). |
+| `cn-heavy/xhv` | 4 MB | 2.6.3+ | CryptoNight-Heavy (modified). |
+| `cn-heavy/0` | 4 MB | 2.6.0+ | CryptoNight-Heavy. |
+| `cn/1` | 2 MB | 2.5.0+ | CryptoNight variant 1. |
+| `cn-lite/1` | 1 MB | 2.5.0+ | CryptoNight-Lite variant 1. |
+| `cn-lite/0` | 1 MB | 0.8.0+ | CryptoNight-Lite variant 0. |
+| `cn/0` | 2 MB | 0.5.0+ | CryptoNight (original). |
+
+## Migration to v3
+Since version 3 mining [algorithm](#algorithm-names) should specified for each pool separately (`algo` option), earlier versions was use one global `algo` option and per pool `variant` option (this option was removed in v3). If your pool support [mining algorithm negotiation](https://github.com/xmrig/xmrig-proxy/issues/168) you may not specify this option at all.
  
 #### Example
 ```json
 {
-  "algo": "cryptonight",
-  ...
   "pools": [
     {
       "url": "...",
-      "variant": 1,
+      "algo": "cn/r",
+      "coin": null
       ...
     }
  ],
  ...
 }
 ```
-
-## Mining algorithm negotiation
-If your pool support [mining algorithm negotiation](https://github.com/xmrig/xmrig-proxy/issues/168) miner will choice proper variant automaticaly and if you choice wrong base algorithm you will see error message.
-
-Pools with mining algorithm negotiation support.
- * [www.hashvault.pro](https://www.hashvault.pro/)

@@ -5,7 +5,9 @@
  * Copyright 2014-2016 Wolf9466    <https://github.com/OhGodAPet>
  * Copyright 2016      Jay D Dee   <jayddee246@gmail.com>
  * Copyright 2017-2018 XMR-Stak    <https://github.com/fireice-uk>, <https://github.com/psychocrypt>
- * Copyright 2016-2018 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright 2018-2019 SChernykh   <https://github.com/SChernykh>
+ * Copyright 2019      Howard Chu  <https://github.com/hyc>
+ * Copyright 2016-2019 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,95 +27,114 @@
 #pragma warning(disable:4244)
 #endif
 
+#include <algorithm>
 #include <inttypes.h>
+#include <iterator>
 #include <memory>
 #include <time.h>
 
 
-#include "api/Api.h"
-#include "common/log/Log.h"
-#include "common/net/Client.h"
-#include "common/net/strategies/FailoverStrategy.h"
-#include "common/net/strategies/SinglePoolStrategy.h"
-#include "common/net/SubmitResult.h"
-#include "core/Config.h"
+#include "base/io/log/Log.h"
+#include "base/net/stratum/Client.h"
+#include "base/net/stratum/SubmitResult.h"
+#include "base/tools/Chrono.h"
+#include "base/tools/Timer.h"
+#include "core/config/Config.h"
 #include "core/Controller.h"
+#include "core/Miner.h"
+#include "net/JobResult.h"
+#include "net/JobResults.h"
 #include "net/Network.h"
 #include "net/strategies/DonateStrategy.h"
-#include "workers/Workers.h"
+#include "rapidjson/document.h"
 
 
-Network::Network(xmrig::Controller *controller) :
+#ifdef XMRIG_FEATURE_API
+#   include "base/api/Api.h"
+#   include "base/api/interfaces/IApiRequest.h"
+#endif
+
+
+xmrig::Network::Network(Controller *controller) :
+    m_controller(controller),
     m_donate(nullptr),
-    m_controller(controller)
+    m_timer(nullptr)
 {
-    srand(time(0) ^ (uintptr_t) this);
+    JobResults::setListener(this);
+    controller->addListener(this);
 
-    Workers::setListener(this);
+#   ifdef XMRIG_FEATURE_API
+    controller->api()->addListener(this);
+#   endif
 
-    const std::vector<Pool> &pools = controller->config()->pools();
+    const Pools &pools = controller->config()->pools();
+    m_strategy = pools.createStrategy(this);
 
-    if (pools.size() > 1) {
-        m_strategy = new FailoverStrategy(pools, controller->config()->retryPause(), controller->config()->retries(), this);
-    }
-    else {
-        m_strategy = new SinglePoolStrategy(pools.front(), controller->config()->retryPause(), controller->config()->retries(), this);
-    }
-
-    if (controller->config()->donateLevel() > 0) {
-        m_donate = new DonateStrategy(controller->config()->donateLevel(), controller->config()->pools().front().user(), controller->config()->algorithm().algo(), this);
+    if (pools.donateLevel() > 0) {
+        m_donate = new DonateStrategy(controller, this);
     }
 
-    m_timer.data = this;
-    uv_timer_init(uv_default_loop(), &m_timer);
-
-    uv_timer_start(&m_timer, Network::onTick, kTickInterval, kTickInterval);
+    m_timer = new Timer(this, kTickInterval, kTickInterval);
 }
 
 
-Network::~Network()
+xmrig::Network::~Network()
 {
+    JobResults::stop();
+
+    delete m_timer;
+
+    if (m_donate) {
+        delete m_donate;
+    }
+
+    delete m_strategy;
 }
 
 
-void Network::connect()
+void xmrig::Network::connect()
 {
     m_strategy->connect();
 }
 
 
-void Network::stop()
-{
-    if (m_donate) {
-        m_donate->stop();
-    }
-
-    m_strategy->stop();
-}
-
-
-void Network::onActive(IStrategy *strategy, Client *client)
+void xmrig::Network::onActive(IStrategy *strategy, IClient *client)
 {
     if (m_donate && m_donate == strategy) {
-        LOG_NOTICE("dev donate started");
+        XMRIG_LOG_NOTICE("dev donate started");
         return;
     }
 
-    m_state.setPool(client->host(), client->port(), client->ip());
+    m_state.onActive(client);
 
     const char *tlsVersion = client->tlsVersion();
-    LOG_INFO(isColors() ? WHITE_BOLD("use pool ") CYAN_BOLD("%s:%d ") GREEN_BOLD("%s") " \x1B[1;30m%s "
-                        : "use pool %s:%d %s %s",
-             client->host(), client->port(), tlsVersion ? tlsVersion : "", client->ip());
+    XMRIG_LOG_INFO(WHITE_BOLD("use %s ") CYAN_BOLD("%s:%d ") GREEN_BOLD("%s") " " BLACK_BOLD("%s"),
+             client->mode(), client->pool().host().data(), client->pool().port(), tlsVersion ? tlsVersion : "", client->ip().data());
 
     const char *fingerprint = client->tlsFingerprint();
     if (fingerprint != nullptr) {
-        LOG_INFO("%sfingerprint (SHA-256): \"%s\"", isColors() ? "\x1B[1;30m" : "", fingerprint);
+        XMRIG_LOG_INFO(BLACK_BOLD("fingerprint (SHA-256): \"%s\""), fingerprint);
     }
 }
 
 
-void Network::onJob(IStrategy *strategy, Client *client, const Job &job)
+void xmrig::Network::onConfigChanged(Config *config, Config *previousConfig)
+{
+    if (config->pools() == previousConfig->pools() || !config->pools().active()) {
+        return;
+    }
+
+    m_strategy->stop();
+
+    config->pools().print();
+
+    delete m_strategy;
+    m_strategy = config->pools().createStrategy(this);
+    connect();
+}
+
+
+void xmrig::Network::onJob(IStrategy *strategy, IClient *client, const Job &job)
 {
     if (m_donate && m_donate->isActive() && m_donate != strategy) {
         return;
@@ -123,9 +144,9 @@ void Network::onJob(IStrategy *strategy, Client *client, const Job &job)
 }
 
 
-void Network::onJobResult(const JobResult &result)
+void xmrig::Network::onJobResult(const JobResult &result)
 {
-    if (result.poolId == -1 && m_donate) {
+    if (result.index == 1 && m_donate) {
         m_donate->submit(result);
         return;
     }
@@ -134,72 +155,165 @@ void Network::onJobResult(const JobResult &result)
 }
 
 
-void Network::onPause(IStrategy *strategy)
+void xmrig::Network::onLogin(IStrategy *, IClient *client, rapidjson::Document &doc, rapidjson::Value &params)
+{
+    using namespace rapidjson;
+    auto &allocator = doc.GetAllocator();
+
+    Algorithms algorithms     = m_controller->miner()->algorithms();
+    const Algorithm algorithm = client->pool().algorithm();
+    if (algorithm.isValid()) {
+        const size_t index = static_cast<size_t>(std::distance(algorithms.begin(), std::find(algorithms.begin(), algorithms.end(), algorithm)));
+        if (index > 0 && index < algorithms.size()) {
+            std::swap(algorithms[0], algorithms[index]);
+        }
+    }
+
+    Value algo(kArrayType);
+
+    for (const auto &a : algorithms) {
+        algo.PushBack(StringRef(a.shortName()), allocator);
+    }
+
+    params.AddMember("algo", algo, allocator);
+}
+
+
+void xmrig::Network::onPause(IStrategy *strategy)
 {
     if (m_donate && m_donate == strategy) {
-        LOG_NOTICE("dev donate finished");
+        XMRIG_LOG_NOTICE("dev donate finished");
         m_strategy->resume();
     }
 
     if (!m_strategy->isActive()) {
-        LOG_ERR("no active pools, stop mining");
+        XMRIG_LOG_ERR("no active pools, stop mining");
         m_state.stop();
-        return Workers::pause();
+
+        return m_controller->miner()->pause();
     }
 }
 
 
-void Network::onResultAccepted(IStrategy *strategy, Client *client, const SubmitResult &result, const char *error)
+void xmrig::Network::onResultAccepted(IStrategy *, IClient *, const SubmitResult &result, const char *error)
 {
     m_state.add(result, error);
 
     if (error) {
-        LOG_INFO(isColors() ? "\x1B[01;31mrejected\x1B[0m (%" PRId64 "/%" PRId64 ") diff \x1B[01;37m%u\x1B[0m \x1B[31m\"%s\"\x1B[0m \x1B[01;30m(%" PRIu64 " ms)"
-                            : "rejected (%" PRId64 "/%" PRId64 ") diff %u \"%s\" (%" PRIu64 " ms)",
+        XMRIG_LOG_INFO(RED_BOLD("rejected") " (%" PRId64 "/%" PRId64 ") diff " WHITE_BOLD("%" PRIu64) " " RED("\"%s\"") " " BLACK_BOLD("(%" PRIu64 " ms)"),
                  m_state.accepted, m_state.rejected, result.diff, error, result.elapsed);
     }
     else {
-        LOG_INFO(isColors() ? "\x1B[01;32maccepted\x1B[0m (%" PRId64 "/%" PRId64 ") diff \x1B[01;37m%u\x1B[0m \x1B[01;30m(%" PRIu64 " ms)"
-                            : "accepted (%" PRId64 "/%" PRId64 ") diff %u (%" PRIu64 " ms)",
+        XMRIG_LOG_INFO(GREEN_BOLD("accepted") " (%" PRId64 "/%" PRId64 ") diff " WHITE_BOLD("%" PRIu64) " " BLACK_BOLD("(%" PRIu64 " ms)"),
                  m_state.accepted, m_state.rejected, result.diff, result.elapsed);
     }
 }
 
 
-bool Network::isColors() const
+void xmrig::Network::onVerifyAlgorithm(IStrategy *, const IClient *, const Algorithm &algorithm, bool *ok)
 {
-    return m_controller->config()->isColors();
+    if (!m_controller->miner()->isEnabled(algorithm)) {
+        *ok = false;
+
+        return;
+    }
 }
 
 
-void Network::setJob(Client *client, const Job &job, bool donate)
+#ifdef XMRIG_FEATURE_API
+void xmrig::Network::onRequest(IApiRequest &request)
 {
-    LOG_INFO(isColors() ? MAGENTA_BOLD("new job") " from " WHITE_BOLD("%s:%d") " diff " WHITE_BOLD("%d") " algo " WHITE_BOLD("%s")
-                        : "new job from %s:%d diff %d algo %s",
-             client->host(), client->port(), job.diff(), job.algorithm().shortName());
+    if (request.type() == IApiRequest::REQ_SUMMARY) {
+        request.accept();
+
+        getResults(request.reply(), request.doc(), request.version());
+        getConnection(request.reply(), request.doc(), request.version());
+    }
+}
+#endif
+
+
+void xmrig::Network::setJob(IClient *client, const Job &job, bool donate)
+{
+    if (job.height()) {
+        XMRIG_LOG_INFO(MAGENTA_BOLD("new job") " from " WHITE_BOLD("%s:%d") " diff " WHITE_BOLD("%" PRIu64) " algo " WHITE_BOLD("%s") " height " WHITE_BOLD("%" PRIu64),
+                 client->pool().host().data(), client->pool().port(), job.diff(), job.algorithm().shortName(), job.height());
+    }
+    else {
+        XMRIG_LOG_INFO(MAGENTA_BOLD("new job") " from " WHITE_BOLD("%s:%d") " diff " WHITE_BOLD("%" PRIu64) " algo " WHITE_BOLD("%s"),
+                 client->pool().host().data(), client->pool().port(), job.diff(), job.algorithm().shortName());
+    }
+
+    if (!donate && m_donate) {
+        m_donate->setAlgo(job.algorithm());
+    }
 
     m_state.diff = job.diff();
-    Workers::setJob(job, donate);
+    m_controller->miner()->setJob(job, donate);
 }
 
 
-void Network::tick()
+void xmrig::Network::tick()
 {
-    const uint64_t now = uv_now(uv_default_loop());
+    const uint64_t now = Chrono::steadyMSecs();
 
     m_strategy->tick(now);
 
     if (m_donate) {
         m_donate->tick(now);
     }
-
-#   ifndef XMRIG_NO_API
-    Api::tick(m_state);
-#   endif
 }
 
 
-void Network::onTick(uv_timer_t *handle)
+#ifdef XMRIG_FEATURE_API
+void xmrig::Network::getConnection(rapidjson::Value &reply, rapidjson::Document &doc, int version) const
 {
-    static_cast<Network*>(handle->data)->tick();
+    using namespace rapidjson;
+    auto &allocator = doc.GetAllocator();
+
+    reply.AddMember("algo", StringRef(m_strategy->client()->job().algorithm().shortName()), allocator);
+
+    Value connection(kObjectType);
+    connection.AddMember("pool",            StringRef(m_state.pool), allocator);
+    connection.AddMember("ip",              m_state.ip().toJSON(), allocator);
+    connection.AddMember("uptime",          m_state.connectionTime(), allocator);
+    connection.AddMember("ping",            m_state.latency(), allocator);
+    connection.AddMember("failures",        m_state.failures, allocator);
+    connection.AddMember("tls",             m_state.tls().toJSON(), allocator);
+    connection.AddMember("tls-fingerprint", m_state.fingerprint().toJSON(), allocator);
+
+    if (version == 1) {
+        connection.AddMember("error_log", Value(kArrayType), allocator);
+    }
+
+    reply.AddMember("connection", connection, allocator);
 }
+
+
+void xmrig::Network::getResults(rapidjson::Value &reply, rapidjson::Document &doc, int version) const
+{
+    using namespace rapidjson;
+    auto &allocator = doc.GetAllocator();
+
+    Value results(kObjectType);
+
+    results.AddMember("diff_current",  m_state.diff, allocator);
+    results.AddMember("shares_good",   m_state.accepted, allocator);
+    results.AddMember("shares_total",  m_state.accepted + m_state.rejected, allocator);
+    results.AddMember("avg_time",      m_state.avgTime(), allocator);
+    results.AddMember("hashes_total",  m_state.total, allocator);
+
+    Value best(kArrayType);
+    for (size_t i = 0; i < m_state.topDiff.size(); ++i) {
+        best.PushBack(m_state.topDiff[i], allocator);
+    }
+
+    results.AddMember("best", best, allocator);
+
+    if (version == 1) {
+        results.AddMember("error_log", Value(kArrayType), allocator);
+    }
+
+    reply.AddMember("results", results, allocator);
+}
+#endif
