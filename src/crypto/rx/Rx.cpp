@@ -129,7 +129,7 @@ public:
             bindToNUMANode(nodeId);
         }
 
-        LOG_INFO("%s" CYAN_BOLD("#%u") MAGENTA_BOLD(" allocate") CYAN_BOLD(" %zu MB") BLACK_BOLD(" (%zu+%zu) for RandomX dataset & cache"),
+        XMRIG_LOG_INFO("%s" CYAN_BOLD("#%u") MAGENTA_BOLD(" allocate") CYAN_BOLD(" %zu MB") BLACK_BOLD(" (%zu+%zu) for RandomX dataset & cache"),
                  tag,
                  nodeId,
                  (RxDataset::size() + RxCache::size()) / 1024 / 1024,
@@ -144,7 +144,7 @@ public:
             const auto hugePages = dataset->hugePages();
             const double percent = hugePages.first == 0 ? 0.0 : static_cast<double>(hugePages.first) / hugePages.second * 100.0;
 
-            LOG_INFO("%s" CYAN_BOLD("#%u") GREEN(" allocate done") " huge pages %s%u/%u %1.0f%%" CLEAR " %sJIT" BLACK_BOLD(" (%" PRIu64 " ms)"),
+            XMRIG_LOG_INFO("%s" CYAN_BOLD("#%u") GREEN(" allocate done") " huge pages %s%u/%u %1.0f%%" CLEAR " %sJIT" BLACK_BOLD(" (%" PRIu64 " ms)"),
                      tag,
                      nodeId,
                      (hugePages.first == hugePages.second ? GREEN_BOLD_S : (hugePages.first == 0 ? RED_BOLD_S : YELLOW_BOLD_S)),
@@ -156,7 +156,7 @@ public:
                      );
         }
         else {
-            LOG_WARN(CLEAR "%s" CYAN_BOLD("#%u") YELLOW_BOLD_S " failed to allocate RandomX dataset, switching to slow mode", tag, nodeId);
+            XMRIG_LOG_WARN(CLEAR "%s" CYAN_BOLD("#%u") YELLOW_BOLD_S " failed to allocate RandomX dataset, switching to slow mode", tag, nodeId);
         }
     }
 
@@ -170,7 +170,7 @@ public:
         d_ptr->getOrAllocate(nodeId)->init(d_ptr->seed(), threads);
         d_ptr->m_ready++;
 
-        LOG_INFO("%s" CYAN_BOLD("#%u") GREEN(" init done") BLACK_BOLD(" (%" PRIu64 " ms)"), tag, nodeId, Chrono::steadyMSecs() - ts);
+        XMRIG_LOG_INFO("%s" CYAN_BOLD("#%u") GREEN(" init done") BLACK_BOLD(" (%" PRIu64 " ms)"), tag, nodeId, Chrono::steadyMSecs() - ts);
     }
 
 
@@ -299,7 +299,7 @@ void xmrig::Rx::init(const Job &job, int initThreads, bool hugePages, bool numa)
     const uint32_t threads = initThreads < 1 ? static_cast<uint32_t>(Cpu::info()->threads()) : static_cast<uint32_t>(initThreads);
     const String buf       = Buffer::toHex(job.seedHash(), 8);
 
-    LOG_INFO("%s" MAGENTA_BOLD("init dataset%s") " algo " WHITE_BOLD("%s (") CYAN_BOLD("%u") WHITE_BOLD(" threads)") BLACK_BOLD(" seed %s..."),
+    XMRIG_LOG_INFO("%s" MAGENTA_BOLD("init dataset%s") " algo " WHITE_BOLD("%s (") CYAN_BOLD("%u") WHITE_BOLD(" threads)") BLACK_BOLD(" seed %s..."),
              tag,
              d_ptr->count() > 1 ? "s" : "",
              job.algorithm().shortName(),
