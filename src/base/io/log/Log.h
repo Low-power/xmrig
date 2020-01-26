@@ -55,7 +55,6 @@ public:
     static void print(Level level, const char *fmt, ...);
     static bool hasBackend();
 
-    static bool background;
     static bool colors;
 
 private:

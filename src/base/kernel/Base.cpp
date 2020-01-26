@@ -194,9 +194,7 @@ int xmrig::Base::init()
     }
 #   endif
 
-    if (config()->isBackground()) {
-        Log::background = true;
-    } else if(!Log::hasBackend()) {
+    if(!Log::hasBackend() && !config()->isBackground()) {
         Log::add(new ConsoleLog());
     }
 
