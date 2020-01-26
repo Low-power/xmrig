@@ -124,6 +124,9 @@ public:
         }
     }
 
+	inline bool hasBackend() {
+		return !m_backends.empty();
+	}
 
 private:
     inline void timestamp(Log::Level level, size_t &size, size_t &offset)
@@ -245,4 +248,9 @@ void xmrig::Log::print(Level level, const char *fmt, ...)
     d->print(level, fmt, args);
 
     va_end(args);
+}
+
+bool xmrig::Log::hasBackend() {
+	if(!d) return false;
+	return d->hasBackend();
 }

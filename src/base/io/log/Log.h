@@ -53,6 +53,7 @@ public:
     static void destroy();
     static void print(const char *fmt, ...);
     static void print(Level level, const char *fmt, ...);
+    static bool hasBackend();
 
     static bool background;
     static bool colors;

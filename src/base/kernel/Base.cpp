@@ -184,13 +184,6 @@ int xmrig::Base::init()
     Platform::setProcessPriority(config()->cpu().priority());
 #   endif
 
-    if (config()->isBackground()) {
-        Log::background = true;
-    }
-    else {
-        Log::add(new ConsoleLog());
-    }
-
     if (config()->logFile()) {
         Log::add(new FileLog(config()->logFile()));
     }
@@ -200,6 +193,13 @@ int xmrig::Base::init()
         Log::add(new SysLog());
     }
 #   endif
+
+    if (config()->isBackground()) {
+        Log::background = true;
+    } else if(!Log::hasBackend()) {
+        Log::add(new ConsoleLog());
+    }
+
 
     return 0;
 }
