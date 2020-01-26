@@ -44,6 +44,7 @@ xmrig::SysLog::~SysLog()
 
 void xmrig::SysLog::print(int level, const char *line, size_t offset, size_t, bool colors)
 {
+	if(colors) return;
 	int syslog_priority = LOG_CRIT;
 	switch(level) {
 		case Log::ERR:
@@ -52,6 +53,7 @@ void xmrig::SysLog::print(int level, const char *line, size_t offset, size_t, bo
 			syslog_priority = LOG_WARNING;
 		case Log::NOTICE:
 			syslog_priority = LOG_NOTICE;
+		case Log::NONE:
 		case Log::INFO:
 			syslog_priority = LOG_INFO;
 		case Log::DEBUG:
