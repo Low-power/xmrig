@@ -307,15 +307,15 @@ rapidjson::Value xmrig::Pool::toJSON(rapidjson::Document &doc) const
 #ifdef APP_DEBUG
 void xmrig::Pool::print() const
 {
-    LOG_NOTICE("url:       %s", m_url.data());
-    LOG_DEBUG ("host:      %s", m_host.data());
-    LOG_DEBUG ("port:      %d", static_cast<int>(m_port));
-    LOG_DEBUG ("user:      %s", m_user.data());
-    LOG_DEBUG ("pass:      %s", m_password.data());
-    LOG_DEBUG ("rig-id     %s", m_rigId.data());
-    LOG_DEBUG ("algo:      %s", m_algorithm.name());
-    LOG_DEBUG ("nicehash:  %d", static_cast<int>(m_flags.test(FLAG_NICEHASH)));
-    LOG_DEBUG ("keepAlive: %d", m_keepAlive);
+    XMRIG_LOG_NOTICE("url:       %s", m_url.data());
+    XMRIG_LOG_DEBUG ("host:      %s", m_host.data());
+    XMRIG_LOG_DEBUG ("port:      %d", static_cast<int>(m_port));
+    XMRIG_LOG_DEBUG ("user:      %s", m_user.data());
+    XMRIG_LOG_DEBUG ("pass:      %s", m_password.data());
+    XMRIG_LOG_DEBUG ("rig-id     %s", m_rigId.data());
+    XMRIG_LOG_DEBUG ("algo:      %s", m_algorithm.name());
+    XMRIG_LOG_DEBUG ("nicehash:  %d", static_cast<int>(m_flags.test(FLAG_NICEHASH)));
+    XMRIG_LOG_DEBUG ("keepAlive: %d", m_keepAlive);
 }
 #endif
 
