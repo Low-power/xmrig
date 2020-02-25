@@ -237,7 +237,8 @@ void xmrig::Client::tick(uint64_t now)
     }
 
     if (m_state == ConnectingState && m_expire && now > m_expire) {
-        return reconnect();
+		if(!close()) reconnect();
+		return;
     }
 }
 
@@ -908,11 +909,12 @@ void xmrig::Client::onConnect(uv_connect_t *req, int status)
             XMRIG_LOG_ERR("[%s] connect error: \"%s\"", client->url(), uv_strerror(status));
         }
 
-        if (client->state() != ConnectingState) {
-            XMRIG_LOG_ERR("[%s] connect error: \"invalid state: %d\"", client->url(), client->state());
-
-            return;
-        }
+		if(client->state() == ClosingState) return;
+		if(client->state() != ConnectingState) {
+			XMRIG_LOG_ERR("[%s] connect error: \"invalid state: %d\"", client->url(), client->state());
+			client->disconnect();
+			return;
+		}
 
         delete req;
         client->close();
