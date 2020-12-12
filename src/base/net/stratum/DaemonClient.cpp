@@ -148,7 +148,7 @@ void xmrig::DaemonClient::onHttpData(const HttpData &data)
         return retry();
     }
 
-    LOG_DEBUG("[%s:%d] received (%d bytes): \"%.*s\"", m_pool.host().data(), m_pool.port(), static_cast<int>(data.body.size()), static_cast<int>(data.body.size()), data.body.c_str());
+    XMRIG_LOG_DEBUG("[%s:%d] received (%d bytes): \"%.*s\"", m_pool.host().data(), m_pool.port(), static_cast<int>(data.body.size()), static_cast<int>(data.body.size()), data.body.c_str());
 
     m_ip = static_cast<const HttpContext &>(data).ip().c_str();
 
@@ -162,7 +162,7 @@ void xmrig::DaemonClient::onHttpData(const HttpData &data)
     rapidjson::Document doc;
     if (doc.Parse(data.body.c_str()).HasParseError()) {
         if (!isQuiet()) {
-            LOG_ERR("[%s:%d] JSON decode failed: \"%s\"", m_pool.host().data(), m_pool.port(), rapidjson::GetParseError_En(doc.GetParseError()));
+            XMRIG_LOG_ERR("[%s:%d] JSON decode failed: \"%s\"", m_pool.host().data(), m_pool.port(), rapidjson::GetParseError_En(doc.GetParseError()));
         }
 
         return retry();
@@ -252,7 +252,7 @@ bool xmrig::DaemonClient::parseResponse(int64_t id, const rapidjson::Value &resu
         const char *message = error["message"].GetString();
 
         if (!handleSubmitResponse(id, message) && !isQuiet()) {
-            LOG_ERR("[%s:%d] error: " RED_BOLD("\"%s\"") RED_S ", code: %d", m_pool.host().data(), m_pool.port(), message, error["code"].GetInt());
+            XMRIG_LOG_ERR("[%s:%d] error: " RED_BOLD("\"%s\"") RED_S ", code: %d", m_pool.host().data(), m_pool.port(), message, error["code"].GetInt());
         }
 
         return false;
@@ -315,7 +315,7 @@ void xmrig::DaemonClient::retry()
 
 void xmrig::DaemonClient::send(int method, const char *url, const char *data, size_t size)
 {
-    LOG_DEBUG("[%s:%d] " MAGENTA_BOLD("\"%s %s\"") BLACK_BOLD_S " send (%zu bytes): \"%.*s\"",
+    XMRIG_LOG_DEBUG("[%s:%d] " MAGENTA_BOLD("\"%s %s\"") BLACK_BOLD_S " send (%zu bytes): \"%.*s\"",
               m_pool.host().data(),
               m_pool.port(),
               http_method_str(static_cast<http_method>(method)),

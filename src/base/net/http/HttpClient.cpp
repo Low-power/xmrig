@@ -119,7 +119,7 @@ void xmrig::HttpClient::onResolved(const Dns &dns, int status)
 
     if (status < 0 && dns.isEmpty()) {
         if (!m_quiet) {
-            LOG_ERR("[%s:%d] DNS error: \"%s\"", dns.host().data(), m_port, uv_strerror(status));
+            XMRIG_LOG_ERR("[%s:%d] DNS error: \"%s\"", dns.host().data(), m_port, uv_strerror(status));
         }
 
         return;
@@ -184,7 +184,7 @@ void xmrig::HttpClient::onConnect(uv_connect_t *req, int status)
 
     if (status < 0) {
         if (!client->m_quiet) {
-            LOG_ERR("[%s:%d] connect error: \"%s\"", client->m_dns->host().data(), client->m_port, uv_strerror(status));
+            XMRIG_LOG_ERR("[%s:%d] connect error: \"%s\"", client->m_dns->host().data(), client->m_port, uv_strerror(status));
         }
 
         delete req;
@@ -211,7 +211,7 @@ void xmrig::HttpClient::onConnect(uv_connect_t *req, int status)
                 client->read(buf->base, static_cast<size_t>(nread));
             } else {
                 if (!client->m_quiet && nread != UV_EOF) {
-                    LOG_ERR("[%s:%d] read error: \"%s\"", client->m_dns->host().data(), client->m_port, uv_strerror(static_cast<int>(nread)));
+                    XMRIG_LOG_ERR("[%s:%d] read error: \"%s\"", client->m_dns->host().data(), client->m_port, uv_strerror(static_cast<int>(nread)));
                 }
 
                 client->close(static_cast<int>(nread));

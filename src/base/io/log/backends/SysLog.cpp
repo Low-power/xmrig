@@ -49,15 +49,20 @@ void xmrig::SysLog::print(int level, const char *line, size_t offset, size_t, bo
 	switch(level) {
 		case Log::ERR:
 			syslog_priority = LOG_ERR;
+			break;
 		case Log::WARNING:
 			syslog_priority = LOG_WARNING;
+			break;
 		case Log::NOTICE:
 			syslog_priority = LOG_NOTICE;
+			break;
 		case Log::NONE:
 		case Log::INFO:
 			syslog_priority = LOG_INFO;
+			break;
 		case Log::DEBUG:
 			syslog_priority = LOG_DEBUG;
+			break;
 	}
 	syslog(syslog_priority, "%s", line + offset);
 }

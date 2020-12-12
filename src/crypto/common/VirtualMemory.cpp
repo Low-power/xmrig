@@ -59,7 +59,7 @@ uint32_t xmrig::VirtualMemory::bindToNUMANode(int64_t affinity)
 #   else
     if (pu == nullptr || hwloc_set_membind_nodeset(topology, pu->nodeset, HWLOC_MEMBIND_BIND, HWLOC_MEMBIND_THREAD) < 0) {
 #   endif
-        LOG_WARN("CPU #%02u warning: \"can't bind memory\"", puId);
+        XMRIG_LOG_WARN("CPU #%02u warning: \"can't bind memory\"", puId);
     }
 
     uint32_t nodeId = 0;
