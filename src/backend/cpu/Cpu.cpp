@@ -62,7 +62,7 @@ rapidjson::Value xmrig::Cpu::toJSON(rapidjson::Document &doc)
     cpu.AddMember("brand",      StringRef(i->brand()), allocator);
     cpu.AddMember("aes",        i->hasAES(), allocator);
     cpu.AddMember("avx2",       i->hasAVX2(), allocator);
-    cpu.AddMember("x64",        i->isX64(), allocator);
+    cpu.AddMember("64bit",        i->is64bit(), allocator);
     cpu.AddMember("l2",         static_cast<uint64_t>(i->L2()), allocator);
     cpu.AddMember("l3",         static_cast<uint64_t>(i->L3()), allocator);
     cpu.AddMember("cores",      static_cast<uint64_t>(i->cores()), allocator);
