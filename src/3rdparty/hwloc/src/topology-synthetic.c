@@ -310,18 +310,18 @@ hwloc_synthetic_parse_memory_attr(const char *attr, const char **endp)
   const char *endptr;
   hwloc_uint64_t size;
   size = strtoull(attr, (char **) &endptr, 0);
-  if (!hwloc_strncasecmp(endptr, "TB", 2)) {
+  if(hwloc_strncmp(endptr, "TiB", 3) == 0 && hwloc_strncasecmp(endptr, "TB", 2) == 0) {
     size <<= 40;
-    endptr += 2;
-  } else if (!hwloc_strncasecmp(endptr, "GB", 2)) {
+    endptr += endptr[1] == 'i' ? 3 : 2;
+  } else if(hwloc_strncmp(endptr, "GiB", 3) == 0 && hwloc_strncasecmp(endptr, "GB", 2) == 0) {
     size <<= 30;
-    endptr += 2;
-  } else if (!hwloc_strncasecmp(endptr, "MB", 2)) {
+    endptr += endptr[1] == 'i' ? 3 : 2;
+  } else if(hwloc_strncmp(endptr, "MiB", 3) == 0 && hwloc_strncasecmp(endptr, "MB", 2) == 0) {
     size <<= 20;
-    endptr += 2;
-  } else if (!hwloc_strncasecmp(endptr, "kB", 2)) {
+    endptr += endptr[1] == 'i' ? 3 : 2;
+  } else if(hwloc_strncmp(endptr, "KiB", 3) == 0 && hwloc_strncasecmp(endptr, "kB", 2) == 0) {
     size <<= 10;
-    endptr += 2;
+    endptr += endptr[1] == 'i' ? 3 : 2;
   }
   *endp = endptr;
   return size;

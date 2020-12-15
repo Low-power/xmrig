@@ -93,7 +93,7 @@ public:
 
     inline void start()
     {
-        XMRIG_LOG_INFO("%s use profile " BLUE_BG(WHITE_BOLD_S " %s ") WHITE_BOLD_S " (" CYAN_BOLD("%zu") WHITE_BOLD(" threads)") " scratchpad " CYAN_BOLD("%zu KB"),
+        XMRIG_LOG_INFO("%s use profile " BLUE_BG(WHITE_BOLD_S " %s ") WHITE_BOLD_S " (" CYAN_BOLD("%zu") WHITE_BOLD(" threads)") " scratchpad " CYAN_BOLD("%zu KiB"),
                  tag,
                  profileName.data(),
                  threads.size(),
@@ -277,13 +277,13 @@ void xmrig::CpuBackend::start(IWorker *worker)
 
     if (d_ptr->status.started == d_ptr->status.threads) {
         const double percent = d_ptr->status.hugePages == 0 ? 0.0 : static_cast<double>(d_ptr->status.hugePages) / d_ptr->status.pages * 100.0;
-        const size_t memory  = d_ptr->status.ways * d_ptr->status.memory / 1024;
+        const size_t memory_kib = d_ptr->status.ways * d_ptr->status.memory / 1024;
 
-        XMRIG_LOG_INFO("%s" GREEN_BOLD(" READY") " threads " CYAN_BOLD("%zu(%zu)") " huge pages %s%zu/%zu %1.0f%%\x1B[0m memory " CYAN_BOLD("%zu KB") BLACK_BOLD(" (%" PRIu64 " ms)"),
+        XMRIG_LOG_INFO("%s" GREEN_BOLD(" READY") " threads " CYAN_BOLD("%zu(%zu)") " huge pages %s%zu/%zu %1.0f%%\x1B[0m memory " CYAN_BOLD("%zu KiB") BLACK_BOLD(" (%" PRIu64 " ms)"),
                  tag,
                  d_ptr->status.threads, d_ptr->status.ways,
                  (d_ptr->status.hugePages == d_ptr->status.pages ? GREEN_BOLD_S : (d_ptr->status.hugePages == 0 ? RED_BOLD_S : YELLOW_BOLD_S)),
-                 d_ptr->status.hugePages, d_ptr->status.pages, percent, memory,
+                 d_ptr->status.hugePages, d_ptr->status.pages, percent, memory_kib,
                  Chrono::steadyMSecs() - d_ptr->status.ts
                  );
     }

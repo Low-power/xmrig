@@ -259,7 +259,7 @@ static void fill_amd_cache(struct procinfo *infos, unsigned level, hwloc_obj_cac
   cache->size = size;
   cache->sets = 0;
 
-  hwloc_debug("cache L%u t%u linesize %u ways %d size %luKB\n", cache->level, cache->nbthreads_sharing, cache->linesize, cache->ways, cache->size >> 10);
+  hwloc_debug("cache L%u t%u linesize %u ways %d size %luKiB\n", cache->level, cache->nbthreads_sharing, cache->linesize, cache->ways, cache->size >> 10);
 }
 
 static void look_exttopoenum(struct procinfo *infos, unsigned leaf, struct cpuiddump *src_cpuiddump)
@@ -519,7 +519,7 @@ static void look_proc(struct hwloc_backend *backend, struct procinfo *infos, uns
       cache->size = linesize * linepart * ways * sets;
       cache->inclusive = edx & 0x2;
 
-      hwloc_debug("cache %u L%u%c t%u linesize %lu linepart %lu ways %lu sets %lu, size %luKB\n",
+      hwloc_debug("cache %u L%u%c t%u linesize %lu linepart %lu ways %lu sets %lu, size %luKiB\n",
 		  cachenum, cache->level,
 		  cache->type == HWLOC_OBJ_CACHE_DATA ? 'd' : cache->type == HWLOC_OBJ_CACHE_INSTRUCTION ? 'i' : 'u',
 		  cache->nbthreads_sharing, linesize, linepart, ways, sets, cache->size >> 10);
@@ -629,7 +629,7 @@ static void look_proc(struct hwloc_backend *backend, struct procinfo *infos, uns
       cache->size = linesize * linepart * ways * sets;
       cache->inclusive = edx & 0x2;
 
-      hwloc_debug("cache %u L%u%c t%u linesize %lu linepart %lu ways %lu sets %lu, size %luKB\n",
+      hwloc_debug("cache %u L%u%c t%u linesize %lu linepart %lu ways %lu sets %lu, size %luKiB\n",
 		  cachenum, cache->level,
 		  cache->type == HWLOC_OBJ_CACHE_DATA ? 'd' : cache->type == HWLOC_OBJ_CACHE_INSTRUCTION ? 'i' : 'u',
 		  cache->nbthreads_sharing, linesize, linepart, ways, sets, cache->size >> 10);

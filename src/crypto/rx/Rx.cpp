@@ -129,7 +129,7 @@ public:
             bindToNUMANode(nodeId);
         }
 
-        XMRIG_LOG_INFO("%s" CYAN_BOLD("#%u") MAGENTA_BOLD(" allocate") CYAN_BOLD(" %zu MB") BLACK_BOLD(" (%zu+%zu) for RandomX dataset & cache"),
+        XMRIG_LOG_INFO("%s" CYAN_BOLD("#%u") MAGENTA_BOLD(" allocate") CYAN_BOLD(" %zu MiB") BLACK_BOLD(" (%zu+%zu) for RandomX dataset & cache"),
                  tag,
                  nodeId,
                  (RxDataset::size() + RxCache::size()) / 1024 / 1024,
