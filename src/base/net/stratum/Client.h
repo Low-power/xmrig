@@ -66,7 +66,7 @@ public:
 #   endif
 
     Client(int id, const char *agent, IClientListener *listener);
-    ~Client() override;
+    ~Client() noexcept override;
 
 protected:
     bool disconnect() override;

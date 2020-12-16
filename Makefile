@@ -1,11 +1,15 @@
 # I still don't want to use cmake(1)
 
-DEFINES += -DHAVE_SYSLOG_H -DNDEBUG -DRAPIDJSON_SSE2 -DUNICODE -DXMRIG_NO_API -DXMRIG_NO_HTTPD -D_GNU_SOURCE -D__STDC_FORMAT_MACROS
+DEFINES += -D HAVE_SYSLOG_H=1 -D NDEBUG=1 -D _GNU_SOURCE=1 -D __STDC_FORMAT_MACROS=1
 # Linking to OpenSSL creates license issues, disable it for now
-DEFINES += -DXMRIG_NO_TLS
+DEFINES += -D XMRIG_NO_TLS=1
+DEFINES += -D XMRIG_NO_API=1 -D XMRIG_NO_HTTPD=1
+DEFINES += -D RAPIDJSON_SSE2=1
 INCLUDE_PATHS += -Isrc/3rdparty/libcpuid -Isrc -Isrc/3rdparty
 CFLAGS += $(DEFINES) $(INCLUDE_PATHS) -Wall -std=gnu99 -O3
-CXXFLAGS += $(DEFINES) $(INCLUDE_PATHS) -D_GLIBCXX_USE_NANOSLEEP -D_GLIBCXX_USE_SCHED_YIELD -Wall -maes -std=gnu++0x -O3 -DNDEBUG -funroll-loops -fvariable-expansion-in-unroller -fmerge-all-constants -fbranch-target-load-optimize2
+#CXXFLAGS += $(DEFINES) $(INCLUDE_PATHS) -D_GLIBCXX_USE_NANOSLEEP -D_GLIBCXX_USE_SCHED_YIELD -Wall -maes -std=gnu++0x -O3 -DNDEBUG -funroll-loops -fvariable-expansion-in-unroller -fmerge-all-constants -fbranch-target-load-optimize2
+CXXFLAGS += $(DEFINES) $(INCLUDE_PATHS) -D_GLIBCXX_USE_NANOSLEEP -D_GLIBCXX_USE_SCHED_YIELD -Wall -maes -std=gnu++0x -O3 -DNDEBUG -funroll-loops -fmerge-all-constants
+#CXXFLAGS += $(DEFINES) $(INCLUDE_PATHS) -D_GLIBCXX_USE_NANOSLEEP -D_GLIBCXX_USE_SCHED_YIELD -Wall -std=gnu++0x -Os -DNDEBUG -funroll-loops -fmerge-all-constants
 #CXXFLAGS += -Dnullptr=__null -Dconstexpr=const "-Dalignas(b)=" -Doverride= -fpermissive
 CXXFLAGS += "-Dalignas(b)=__attribute__((__aligned__))"
 LIBS += -l uv -l pthread

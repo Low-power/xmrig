@@ -45,6 +45,7 @@ class BaseClient : public IClient
 {
 public:
     BaseClient(int id, IClientListener *listener);
+    ~BaseClient() noexcept {};
 
     inline bool isEnabled() const override                     { return m_enabled; }
     inline const Job &job() const override                     { return m_job; }
@@ -68,7 +69,8 @@ protected:
         ReconnectingState
     };
 
-    inline bool isQuiet() const { return m_quiet || m_failures >= m_retries; }
+    //inline bool isQuiet() const { return m_quiet || m_failures >= m_retries; }
+    inline bool isQuiet() const { return m_quiet; }
 
     bool handleSubmitResponse(int64_t id, const char *error = nullptr);
 

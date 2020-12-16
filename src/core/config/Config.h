@@ -49,6 +49,7 @@ class Config : public BaseConfig
 {
 public:
     Config();
+    ~Config() noexcept {};
 
     bool isShouldSave() const;
     bool read(const IJsonReader &reader, const char *fileName) override;

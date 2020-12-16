@@ -46,7 +46,7 @@ class FailoverStrategy : public IStrategy, public IClientListener
 public:
     FailoverStrategy(const std::vector<Pool> &pool, int retryPause, int retries, IStrategyListener *listener, bool quiet = false);
     FailoverStrategy(int retryPause, int retries, IStrategyListener *listener, bool quiet = false);
-    ~FailoverStrategy() override;
+    ~FailoverStrategy() noexcept override;
 
     void add(const Pool &pool);
 

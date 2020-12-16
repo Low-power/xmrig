@@ -41,7 +41,7 @@ class Controller : public Base
 {
 public:
     Controller(Process *process);
-    ~Controller() override;
+    ~Controller() noexcept override;
 
     bool isReady() const override;
     int init() override;

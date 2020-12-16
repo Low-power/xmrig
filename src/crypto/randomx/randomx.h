@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef RANDOMX_H
 #define RANDOMX_H
 
+#define __STDC_LIMIT_MACROS
 #include <stddef.h>
 #include <stdint.h>
 #include <type_traits>

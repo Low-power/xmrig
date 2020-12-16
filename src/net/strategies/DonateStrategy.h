@@ -48,7 +48,7 @@ class DonateStrategy : public IStrategy, public IStrategyListener, public ITimer
 {
 public:
     DonateStrategy(Controller *controller, IStrategyListener *listener);
-    ~DonateStrategy() override;
+    ~DonateStrategy() noexcept override;
 
 protected:
     inline bool isActive() const override                                                                              { return state() == STATE_ACTIVE; }

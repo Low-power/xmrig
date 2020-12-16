@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #include "crypto/randomx/intrin_portable.h"
 

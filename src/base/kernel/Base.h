@@ -46,7 +46,7 @@ class Base : public IWatcherListener, public IApiListener
 {
 public:
     Base(Process *process);
-    ~Base() override;
+    ~Base() noexcept override;
 
     virtual bool isReady() const;
     virtual int init();

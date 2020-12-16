@@ -45,7 +45,7 @@ class CpuWorker : public Worker
 {
 public:
     CpuWorker(size_t index, const CpuLaunchData &data);
-    ~CpuWorker() override;
+    ~CpuWorker() noexcept override;
 
 protected:
     bool selfTest() override;

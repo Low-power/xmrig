@@ -36,7 +36,7 @@ xmrig::SysLog::SysLog()
 }
 
 
-xmrig::SysLog::~SysLog()
+xmrig::SysLog::~SysLog() noexcept
 {
     closelog();
 }

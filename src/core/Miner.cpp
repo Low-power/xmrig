@@ -274,7 +274,7 @@ xmrig::Miner::Miner(Controller *controller)
 }
 
 
-xmrig::Miner::~Miner()
+xmrig::Miner::~Miner() noexcept
 {
     delete d_ptr;
 }

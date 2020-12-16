@@ -42,7 +42,7 @@ class SinglePoolStrategy : public IStrategy, public IClientListener
 {
 public:
     SinglePoolStrategy(const Pool &pool, int retryPause, int retries, IStrategyListener *listener, bool quiet = false);
-    ~SinglePoolStrategy() override;
+    ~SinglePoolStrategy() noexcept override;
 
 protected:
     inline bool isActive() const override           { return m_active; }

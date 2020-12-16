@@ -56,7 +56,7 @@ xmrig::SinglePoolStrategy::SinglePoolStrategy(const Pool &pool, int retryPause, 
 }
 
 
-xmrig::SinglePoolStrategy::~SinglePoolStrategy()
+xmrig::SinglePoolStrategy::~SinglePoolStrategy() noexcept
 {
     m_client->deleteLater();
 }

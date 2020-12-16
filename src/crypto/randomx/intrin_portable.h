@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#define __STDC_LIMIT_MACROS
 #include <cstdint>
 #include "crypto/randomx/blake2/endian.h"
 

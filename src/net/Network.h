@@ -50,7 +50,7 @@ class Network : public IJobResultListener, public IStrategyListener, public IBas
 {
 public:
     Network(Controller *controller);
-    ~Network() override;
+    ~Network() noexcept override;
 
     inline IStrategy *strategy() const { return m_strategy; }
 

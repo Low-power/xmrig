@@ -59,7 +59,7 @@ xmrig::FailoverStrategy::FailoverStrategy(int retryPause, int retries, IStrategy
 }
 
 
-xmrig::FailoverStrategy::~FailoverStrategy()
+xmrig::FailoverStrategy::~FailoverStrategy() noexcept
 {
     for (IClient *client : m_pools) {
         client->deleteLater();

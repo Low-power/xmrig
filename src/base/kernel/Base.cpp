@@ -151,7 +151,7 @@ xmrig::Base::Base(Process *process)
 }
 
 
-xmrig::Base::~Base()
+xmrig::Base::~Base() noexcept
 {
     delete d_ptr;
 }

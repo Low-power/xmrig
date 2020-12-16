@@ -67,7 +67,7 @@ void xmrig::BaseTransform::load(JsonChain &chain, Process *process, IConfigTrans
     int argc    = process->arguments().argc();
     char **argv = process->arguments().argv();
 
-    Document doc(kObjectType);
+    Document *doc = new Document(kObjectType);
 
     while (1) {
         key = getopt_long(argc, argv, short_options, options, nullptr);
@@ -76,13 +76,13 @@ void xmrig::BaseTransform::load(JsonChain &chain, Process *process, IConfigTrans
         }
 
         if (key == IConfig::ConfigKey) {
-            chain.add(std::move(doc));
+            chain.add(doc);
             chain.addFile(optarg);
 
-            doc = Document(kObjectType);
+            doc = new Document(kObjectType);
         }
         else {
-            transform.transform(doc, key, optarg);
+            transform.transform(*doc, key, optarg);
         }
     }
 
@@ -90,8 +90,8 @@ void xmrig::BaseTransform::load(JsonChain &chain, Process *process, IConfigTrans
         XMRIG_LOG_WARN("%s: unsupported non-option argument '%s'", argv[0], argv[optind]);
     }
 
-    transform.finalize(doc);
-    chain.add(std::move(doc));
+    transform.finalize(*doc);
+    chain.add(doc);
 }
 
 

@@ -41,8 +41,9 @@ class JsonChain : public IJsonReader
 {
 public:
     JsonChain();
+	~JsonChain() noexcept;
 
-    bool add(rapidjson::Document &&doc);
+    bool add(rapidjson::Document *doc);
     bool addFile(const char *fileName);
     bool addRaw(const char *json);
 
@@ -65,7 +66,7 @@ protected:
     unsigned getUint(const char *key, unsigned defaultValue = 0) const override;
 
 private:
-    std::vector<rapidjson::Document> m_chain;
+    std::vector<rapidjson::Document *> m_chain;
     String m_fileName;
 };
 

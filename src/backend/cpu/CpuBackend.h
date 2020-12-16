@@ -44,7 +44,7 @@ class CpuBackend : public IBackend
 {
 public:
     CpuBackend(Controller *controller);
-    ~CpuBackend() override;
+    ~CpuBackend() noexcept override;
 
     std::pair<unsigned, unsigned> hugePages() const;
 

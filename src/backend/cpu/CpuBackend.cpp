@@ -142,7 +142,7 @@ xmrig::CpuBackend::CpuBackend(Controller *controller) :
 }
 
 
-xmrig::CpuBackend::~CpuBackend()
+xmrig::CpuBackend::~CpuBackend() noexcept
 {
     delete d_ptr;
 }

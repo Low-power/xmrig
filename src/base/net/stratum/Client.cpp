@@ -85,7 +85,7 @@ xmrig::Client::Client(int id, const char *agent, IClientListener *listener) :
 }
 
 
-xmrig::Client::~Client()
+xmrig::Client::~Client() noexcept
 {
     delete m_dns;
     delete m_socket;

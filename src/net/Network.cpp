@@ -78,7 +78,7 @@ xmrig::Network::Network(Controller *controller) :
 }
 
 
-xmrig::Network::~Network()
+xmrig::Network::~Network() noexcept
 {
     JobResults::stop();
 

@@ -52,7 +52,7 @@ xmrig::App::App(Process *process) :
 }
 
 
-xmrig::App::~App()
+xmrig::App::~App() noexcept
 {
     delete m_signals;
     delete m_controller;

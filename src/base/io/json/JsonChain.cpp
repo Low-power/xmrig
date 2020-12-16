@@ -40,14 +40,20 @@ xmrig::JsonChain::JsonChain()
 {
 }
 
+xmrig::JsonChain::~JsonChain() noexcept {
+	for(rapidjson::Document *doc : m_chain) {
+		delete doc;
+	}
+}
 
-bool xmrig::JsonChain::add(rapidjson::Document &&doc)
+bool xmrig::JsonChain::add(rapidjson::Document *doc)
 {
-    if (doc.HasParseError() || !doc.IsObject() || doc.ObjectEmpty()) {
+    if (doc->HasParseError() || !doc->IsObject() || doc->ObjectEmpty()) {
         return false;
     }
 
-    m_chain.push_back(std::move(doc));
+    //m_chain.push_back(std::move(doc));
+    m_chain.push_back(doc);
 
     return true;
 }
@@ -56,15 +62,14 @@ bool xmrig::JsonChain::add(rapidjson::Document &&doc)
 bool xmrig::JsonChain::addFile(const char *fileName)
 {
     using namespace rapidjson;
-    Document doc;
-    if (Json::get(fileName, doc)) {
+    Document *doc = new Document;
+    if (Json::get(fileName, *doc)) {
         m_fileName = fileName;
-
-        return add(std::move(doc));
+        return add(doc);
     }
 
-    if (doc.HasParseError()) {
-        XMRIG_LOG_ERR("%s<offset:%zu>: \"%s\"", fileName, doc.GetErrorOffset(), GetParseError_En(doc.GetParseError()));
+    if (doc->HasParseError()) {
+        XMRIG_LOG_ERR("%s<offset:%zu>: \"%s\"", fileName, doc->GetErrorOffset(), GetParseError_En(doc->GetParseError()));
     }
     else {
         XMRIG_LOG_ERR("unable to open \"%s\".", fileName);
@@ -77,10 +82,9 @@ bool xmrig::JsonChain::addFile(const char *fileName)
 bool xmrig::JsonChain::addRaw(const char *json)
 {
     using namespace rapidjson;
-    Document doc;
-    doc.Parse<kParseCommentsFlag | kParseTrailingCommasFlag>(json);
-
-    return add(std::move(doc));
+    Document *doc = new Document;
+    doc->Parse<kParseCommentsFlag | kParseTrailingCommasFlag>(json);
+    return add(doc);
 }
 
 
@@ -88,8 +92,8 @@ void xmrig::JsonChain::dump(const char *fileName)
 {
     rapidjson::Document doc(rapidjson::kArrayType);
 
-    for (rapidjson::Document &value : m_chain) {
-        doc.PushBack(value, doc.GetAllocator());
+    for (rapidjson::Document *value : m_chain) {
+        doc.PushBack(*value, doc.GetAllocator());
     }
 
     Json::save(fileName, doc);
@@ -98,116 +102,125 @@ void xmrig::JsonChain::dump(const char *fileName)
 
 bool xmrig::JsonChain::getBool(const char *key, bool defaultValue) const
 {
-    for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
-        auto i = it->FindMember(key);
-        if (i != it->MemberEnd() && i->value.IsBool()) {
-            return i->value.GetBool();
-        }
-    }
+	for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
+		rapidjson::Document *doc = *it;
+		auto i = doc->FindMember(key);
+		if (i != doc->MemberEnd() && i->value.IsBool()) {
+			return i->value.GetBool();
+		}
+	}
 
-    return defaultValue;
+	return defaultValue;
 }
 
 
 const char *xmrig::JsonChain::getString(const char *key, const char *defaultValue) const
 {
-    for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
-        auto i = it->FindMember(key);
-        if (i != it->MemberEnd() && i->value.IsString()) {
-            return i->value.GetString();
-        }
-    }
+	for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
+		rapidjson::Document *doc = *it;
+		auto i = doc->FindMember(key);
+		if (i != doc->MemberEnd() && i->value.IsString()) {
+			return i->value.GetString();
+		}
+	}
 
-    return defaultValue;
+	return defaultValue;
 }
 
 
 const rapidjson::Value &xmrig::JsonChain::getArray(const char *key) const
 {
-    for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
-        auto i = it->FindMember(key);
-        if (i != it->MemberEnd() && i->value.IsArray()) {
-            return i->value;
-        }
-    }
+	for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
+		rapidjson::Document *doc = *it;
+		auto i = doc->FindMember(key);
+		if (i != doc->MemberEnd() && i->value.IsArray()) {
+			return i->value;
+		}
+	}
 
-    return kNullValue;
+	return kNullValue;
 }
 
 
 const rapidjson::Value &xmrig::JsonChain::getObject(const char *key) const
 {
-    for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
-        auto i = it->FindMember(key);
-        if (i != it->MemberEnd() && i->value.IsObject()) {
-            return i->value;
-        }
-    }
+	for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
+		rapidjson::Document *doc = *it;
+		auto i = doc->FindMember(key);
+		if (i != doc->MemberEnd() && i->value.IsObject()) {
+			return i->value;
+		}
+	}
 
-    return kNullValue;
+	return kNullValue;
 }
 
 
 const rapidjson::Value &xmrig::JsonChain::getValue(const char *key) const
 {
-    for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
-        auto i = it->FindMember(key);
-        if (i != it->MemberEnd()) {
-            return i->value;
-        }
-    }
+	for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
+		rapidjson::Document *doc = *it;
+		auto i = doc->FindMember(key);
+		if (i != doc->MemberEnd()) {
+			return i->value;
+		}
+	}
 
-    return kNullValue;
+	return kNullValue;
 }
 
 
 int xmrig::JsonChain::getInt(const char *key, int defaultValue) const
 {
-    for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
-        auto i = it->FindMember(key);
-        if (i != it->MemberEnd() && i->value.IsInt()) {
-            return i->value.GetInt();
-        }
-    }
+	for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
+		rapidjson::Document *doc = *it;
+		auto i = doc->FindMember(key);
+		if (i != doc->MemberEnd() && i->value.IsInt()) {
+			return i->value.GetInt();
+		}
+	}
 
-    return defaultValue;
+	return defaultValue;
 }
 
 
 int64_t xmrig::JsonChain::getInt64(const char *key, int64_t defaultValue) const
 {
-    for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
-        auto i = it->FindMember(key);
-        if (i != it->MemberEnd() && i->value.IsInt64()) {
-            return i->value.GetInt64();
-        }
-    }
+	for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
+		rapidjson::Document *doc = *it;
+		auto i = doc->FindMember(key);
+		if (i != doc->MemberEnd() && i->value.IsInt64()) {
+			return i->value.GetInt64();
+		}
+	}
 
-    return defaultValue;
+	return defaultValue;
 }
 
 
 uint64_t xmrig::JsonChain::getUint64(const char *key, uint64_t defaultValue) const
 {
-    for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
-        auto i = it->FindMember(key);
-        if (i != it->MemberEnd() && i->value.IsUint64()) {
-            return i->value.GetUint64();
-        }
-    }
+	for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
+		rapidjson::Document *doc = *it;
+		auto i = doc->FindMember(key);
+		if (i != doc->MemberEnd() && i->value.IsUint64()) {
+			return i->value.GetUint64();
+		}
+	}
 
-    return defaultValue;
+	return defaultValue;
 }
 
 
 unsigned xmrig::JsonChain::getUint(const char *key, unsigned defaultValue) const
 {
-    for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
-        auto i = it->FindMember(key);
-        if (i != it->MemberEnd() && i->value.IsUint()) {
-            return i->value.GetUint();
-        }
-    }
+	for (auto it = m_chain.rbegin(); it != m_chain.rend(); ++it) {
+		rapidjson::Document *doc = *it;
+		auto i = doc->FindMember(key);
+		if (i != doc->MemberEnd() && i->value.IsUint()) {
+			return i->value.GetUint();
+		}
+	}
 
-    return defaultValue;
+	return defaultValue;
 }

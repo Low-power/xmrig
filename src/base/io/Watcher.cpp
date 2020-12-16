@@ -46,7 +46,7 @@ xmrig::Watcher::Watcher(const String &path, IWatcherListener *listener) :
 }
 
 
-xmrig::Watcher::~Watcher()
+xmrig::Watcher::~Watcher() noexcept
 {
     delete m_timer;
 

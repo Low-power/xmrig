@@ -48,7 +48,7 @@ class Miner : public ITimerListener, public IBaseListener, public IApiListener
 {
 public:
     Miner(Controller *controller);
-    ~Miner() override;
+    ~Miner() noexcept override;
 
     bool isEnabled() const;
     bool isEnabled(const Algorithm &algorithm) const;

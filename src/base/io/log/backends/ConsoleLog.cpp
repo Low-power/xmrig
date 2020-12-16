@@ -62,7 +62,7 @@ xmrig::ConsoleLog::ConsoleLog()
 }
 
 
-xmrig::ConsoleLog::~ConsoleLog()
+xmrig::ConsoleLog::~ConsoleLog() noexcept
 {
     Handle::close(m_tty);
 }

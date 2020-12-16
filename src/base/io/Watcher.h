@@ -44,7 +44,7 @@ class Watcher : public ITimerListener
 {
 public:
     Watcher(const String &path, IWatcherListener *listener);
-    ~Watcher() override;
+    ~Watcher() noexcept override;
 
 protected:
     inline void onTimer(const Timer *) override { reload(); }

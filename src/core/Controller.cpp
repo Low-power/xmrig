@@ -38,7 +38,7 @@ xmrig::Controller::Controller(Process *process) :
 }
 
 
-xmrig::Controller::~Controller()
+xmrig::Controller::~Controller() noexcept
 {
     delete m_network;
 }

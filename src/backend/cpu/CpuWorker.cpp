@@ -67,7 +67,7 @@ xmrig::CpuWorker<N>::CpuWorker(size_t index, const CpuLaunchData &data) :
 
 
 template<size_t N>
-xmrig::CpuWorker<N>::~CpuWorker()
+xmrig::CpuWorker<N>::~CpuWorker() noexcept
 {
     CnCtx::release(m_ctx, N);
     delete m_memory;

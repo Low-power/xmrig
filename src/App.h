@@ -43,7 +43,7 @@ class App : public ISignalListener
 {
 public:
     App(Process *process);
-    ~App() override;
+    ~App() noexcept override;
 
     int exec();
 

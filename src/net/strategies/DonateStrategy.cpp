@@ -94,7 +94,7 @@ xmrig::DonateStrategy::DonateStrategy(Controller *controller, IStrategyListener 
 }
 
 
-xmrig::DonateStrategy::~DonateStrategy()
+xmrig::DonateStrategy::~DonateStrategy() noexcept
 {
     delete m_timer;
     delete m_strategy;
@@ -248,7 +248,7 @@ xmrig::Client *xmrig::DonateStrategy::createProxy()
 
     Client *proxy = new Client(-1, Platform::userAgent(), this);
     proxy->setPool(pool);
-    proxy->setQuiet(true);
+    //proxy->setQuiet(true);
 
     return proxy;
 }

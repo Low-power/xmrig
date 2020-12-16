@@ -44,7 +44,7 @@ public:
     XMRIG_DISABLE_COPY_MOVE(ConsoleLog)
 
     ConsoleLog();
-    ~ConsoleLog() override;
+    ~ConsoleLog() noexcept override;
 
 protected:
     void print(int level, const char *line, size_t offset, size_t size, bool colors) override;

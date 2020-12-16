@@ -44,6 +44,7 @@ class BaseConfig : public IConfig
 {
 public:
     BaseConfig();
+    ~BaseConfig() noexcept {};
 
     inline bool isAutoSave() const                 { return m_autoSave; }
     inline bool isBackground() const               { return m_background; }
